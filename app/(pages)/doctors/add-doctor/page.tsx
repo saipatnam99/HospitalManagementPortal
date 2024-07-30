@@ -1,20 +1,88 @@
 "use client";
-import React from "react";
 
-const handleChange = (
-  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-) => {
-  // setFormData({ ...formData, [e.target.name]: e.target.value });
-};
+import axios from "axios";
+import  { useEffect, useState } from "react";
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-  // onSubmit(formData);
-  };
+interface Doctors {
+  id?: string;
+  fullName: string;
+  phone: number;
+  email: string;
+  experience: number;
+  specialization: string;
+  address: string;
+}
+
+const sidebarItems = [
+  { href: "/dashboard", label: "Dashboard"},
+  { href: "/doctors", label: "Doctors", active: true  },
+  { href: "/patients", label: "Patients" },
+  { href: "/appointments", label: "Appointments" },
+  { href: "/services", label: "Services" },
+  { href: "/billing", label: " Billing" },
+  { href: "/insurance", label: "Insurance" },
+  { href: "/policies", label: "Policies" },
+  { href: "/faq", label: "FAQ" },
+  { href: "/notifications", label: "Notifications" },
+];
+
+
+
+
 
 const AddDoctor = () => {
+  const[isLoading,setIsLoading]= useState(false)
+  const[doctors,setDoctors]=useState<Doctors[]>([])
+
+  const [newDoctor,setNewDoctor]= useState<Doctors>({
+    fullName: "",
+    phone: 0,
+    specialization:"",
+    experience: 0,
+    email: "",
+    address: "",
+  })
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const {name, value}= e.target;
+    setNewDoctor((prev)=> ({...prev, [name]: value}))
+    // setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+console.log(newDoctor)
+    try {
+      const response = await axios.post("/api/doctors",newDoctor)
+      console.log(response.data)
+      const newDoctorData= response.data.doctor;
+      console.log(newDoctorData)
+      setDoctors((prevDoctors)=> [...prevDoctors, newDoctorData])
+      setNewDoctor({
+        fullName: "",
+        phone: 0,
+        specialization:"",
+        experience: 0,
+        email: "",
+        address: "",
+      })
+      
+    } catch (error) {
+      console.log("Error adding Doctor", error)
+    }
+
+    // onSubmit(formData);
+  };
+
+  
+
+ 
   return (
-    <form onSubmit= {handleSubmit}className="max-w-lg mx-auto p-6 bg-white rounded shadow-md space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-lg mx-auto p-6 bg-white rounded shadow-md space-y-6"
+    >
       <div>
         <label
           className="block text-gray-700 text-sm font-bold mb-2"
@@ -25,7 +93,7 @@ const AddDoctor = () => {
         <input
           type="text"
           name="fullName"
-          // value={formData.fullName}
+          value={newDoctor.fullName}
           onChange={handleChange}
           className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
           required
@@ -42,7 +110,7 @@ const AddDoctor = () => {
         <input
           type="email"
           name="email"
-          //  value={formData.email}
+           value={newDoctor.email}
           onChange={handleChange}
           className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
           required
@@ -52,14 +120,14 @@ const AddDoctor = () => {
       <div>
         <label
           className="block text-gray-700 text-sm font-bold mb-2"
-          htmlFor="phoneNumber"
+          htmlFor="phone"
         >
-          Phone Number
+          Phone
         </label>
         <input
           type="tel"
-          name="phoneNumber"
-          // value={formData.phoneNumber}
+          name="phone"
+          value={newDoctor.phone}
           onChange={handleChange}
           className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
           required
@@ -76,7 +144,7 @@ const AddDoctor = () => {
         <input
           type="text"
           name="specialization"
-          // value={formData.specialization}
+           value={newDoctor.specialization}
           onChange={handleChange}
           className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
           required
@@ -88,12 +156,12 @@ const AddDoctor = () => {
           className="block text-gray-700 text-sm font-bold mb-2"
           htmlFor="experience"
         >
-         Experience
+          Experience
         </label>
         <input
           type="number"
           name="experience"
-          // value={formData.yearsOfExperience}
+          value={newDoctor.experience}
           onChange={handleChange}
           className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
           required
@@ -105,11 +173,11 @@ const AddDoctor = () => {
           className="block text-gray-700 text-sm font-bold mb-2"
           htmlFor="address"
         >
-         Address
+          Address
         </label>
         <textarea
           name="address"
-          //value={formData.clinicAddress}
+          value={newDoctor.address}
           onChange={handleChange}
           className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
           required

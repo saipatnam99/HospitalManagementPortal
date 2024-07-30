@@ -12,3 +12,15 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
+
+model Doctor {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName          String
+  email             String  @unique
+  phone             String
+  specialization    String
+  experience        Int
+  address           String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
