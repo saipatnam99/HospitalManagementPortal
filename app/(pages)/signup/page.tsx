@@ -8,18 +8,18 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  //   const handleSubmit = async (e: React.FormEvent) => {
-  //     e.preventDefault();
-  //     if (password !== confirmPassword) {
-  //       alert("Passwords don't match");
-  //       return;
-  //     }
-  //     // Add signup logic here
-  //   };
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (password !== confirmPassword) {
+        alert("Passwords don't match");
+        return;
+      }
+      // Add signup logic here
+    };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form
+      <form onSubmit={handleSubmit}
        
         className="bg-white p-8 rounded shadow-md w-full max-w-sm"
       >
@@ -33,7 +33,7 @@ const Signup = () => {
             type="email"
             placeholder="Email"
             value={email}
-            // onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full p-2 border rounded"
           />
         </div>
@@ -46,7 +46,7 @@ const Signup = () => {
             type="text"
             placeholder="Username"
             value={username}
-            // onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => setUsername(e.target.value)}
             className="w-full p-2 border rounded"
           />
         </div>
@@ -59,7 +59,7 @@ const Signup = () => {
             type="text"
             placeholder="Phone"
             value={phone}
-            // onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => setPhone(e.target.value)}
             className="w-full p-2 border rounded"
           />
         </div>
@@ -72,7 +72,7 @@ const Signup = () => {
             type="password"
             placeholder="Password"
             value={password}
-            // onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             className="w-full p-2 border rounded"
           />
         </div>
@@ -85,7 +85,7 @@ const Signup = () => {
             type="password"
             placeholder="Confirm Password"
             value={confirmPassword}
-            // onChange={(e) => setConfirmPassword(e.target.value)}
+             onChange={(e) => setConfirmPassword(e.target.value)}
             className="w-full p-2 border rounded"
           />
         </div>
