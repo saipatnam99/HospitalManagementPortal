@@ -33,3 +33,24 @@ model User {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
+
+model Appointment {
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  firstName      String
+  lastName       String
+  gender         String
+  phone          String    @unique
+  address        String
+  addressLine2   String
+  city           String
+  state          String
+  postalCode     String
+  email          String    
+  appliedBefore  Boolean
+  department     String
+  procedure      String
+  preferredDate  DateTime
+  preferredTime  String
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+}

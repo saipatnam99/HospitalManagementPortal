@@ -13,10 +13,9 @@ interface SidebarItem {
   active?: boolean;
 }
 
-
-const sidebarItems : SidebarItem[]= [
-  { href: "/dashboard", label: "Dashboard"},
-  { href: "/doctors", label: "Doctors", active: true  },
+const sidebarItems: SidebarItem[] = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/doctors", label: "Doctors", active: true },
   { href: "/patients", label: "Patients" },
   { href: "/appointments", label: "Appointments" },
   { href: "/services", label: "Services" },
@@ -26,8 +25,6 @@ const sidebarItems : SidebarItem[]= [
   { href: "/faq", label: "FAQ" },
   { href: "/notifications", label: "Notifications" },
 ];
-
-
 
 interface Doctor {
   id?: string;
@@ -55,6 +52,7 @@ export default function Doctors() {
       setIsLoading(true);
       try {
         const response = await axios.get("/api/doctors");
+        console.log(response.data)
         setDoctors(response.data);
         setIsLoading(false);
       } catch (error) {
@@ -147,10 +145,28 @@ export default function Doctors() {
 
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
+
+      const modifiedDoctor = {
+        ...newDoctor,
+        experience: Number(newDoctor.experience),
+      };
       setIsLoading(true);
+      console.log(modifiedDoctor)
       try {
-        const response = await axios.post("/api/doctors", newDoctor);
-        setDoctors((prevDoctors) => [...prevDoctors, response.data]);
+        // console.log(response.data)
+        const response = await axios.post("/api/doctors", modifiedDoctor);
+        console.log(response.data)
+        const newModifiedDoctor = response.data.doctor;
+        setDoctors((prevDoctors) => [...prevDoctors, newModifiedDoctor]);
+       
+        setNewDoctor({
+          fullName: "",
+          email: "",
+          phone: "",
+          address: "",
+          experience: 0,
+          specialization: "",
+        })
         setShowAddModal(false);
         setIsLoading(false);
       } catch (error) {
@@ -298,6 +314,7 @@ export default function Doctors() {
         specialization: "",
       }
     );
+    if (!updatedDoctor) return null;
 
     const handleChange = (
       e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -308,12 +325,19 @@ export default function Doctors() {
 
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
+
+     const  newUpdatedDoctor= {
+            ...updatedDoctor,
+            experience: Number(updatedDoctor.experience)
+      }
       setIsLoading(true);
       try {
-        await axios.patch(`/api/doctors/${updatedDoctor.id}`, updatedDoctor);
+       const response= await axios.patch(`/api/doctors/${updatedDoctor.id}`, newUpdatedDoctor);
+       console.log(response.data)
+       const updatedDoctorData =response.data.updatedDoctor;
         setDoctors((prevDoctors) =>
           prevDoctors.map((doc) =>
-            doc.id === updatedDoctor.id ? updatedDoctor : doc
+            doc.id === updatedDoctor.id ? updatedDoctorData : doc
           )
         );
         setShowEditModal(false);
@@ -467,11 +491,8 @@ export default function Doctors() {
               Add Doctor
             </button>
           </div>
-        
-            <DataTable
-                data={doctors}
-                columns={columns} isLoading={undefined}            />
-          
+
+          <DataTable data={doctors} columns={columns} isLoading={undefined} />
         </div>
       </div>
       {showAddModal && <AddDoctorForm />}
