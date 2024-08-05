@@ -1,33 +1,74 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
 import { NextPage } from "next";
 import Link from "next/link";
 
 const Home: NextPage = () => {
+  const textRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    // GSAP animation for text
+    gsap.fromTo(
+      textRef.current,
+      { y: 50, opacity: 0 },
+      { y: 0, opacity: 1, duration: 2, ease: "power3.out" }
+    );
+  }, []);
+
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const href = e.currentTarget.getAttribute("href");
+
+    gsap.to(e.currentTarget, {
+      x: 100,
+      opacity: 0,
+      duration: 1,
+      onComplete: () => {
+        if (href) window.location.href = href;
+      },
+    });
+  };
+
   return (
-    <div>
-      <nav className="sticky flex-col flex-grow pb-4 md:pb-2 md:pt-2 md:flex md:justify-end md:flex-row bg-slate-400 text-white rounded-md">
-        <Link
-          href="/login"
-          className="px-3 py-2 mt-2 text-md font-semibold bg-transparent rounded-lg dark-mode:bg-transparent dark-mode:hover:bg-gray-600 dark-mode:focus:bg-gray-600 dark-mode:focus:text-white dark-mode:hover:text-white dark-mode:text-gray-200 md:mt-0 md:ml-4 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline transition ease-in-out delay-150 bg-blue-500 hover:-translate-y-1 hover:scale-110  duration-300"
-        >
-          Login
-        </Link>
-        <Link
-          href="/signup"
-          className="px-3 py-2 mt-2 text-md font-semibold bg-transparent rounded-lg dark-mode:bg-transparent dark-mode:hover:bg-gray-600 dark-mode:focus:bg-gray-600 dark-mode:focus:text-white dark-mode:hover:text-white dark-mode:text-gray-200 md:mt-0 md:ml-4 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline transition ease-in-out delay-150 bg-blue-500 hover:-translate-y-1 hover:scale-110  duration-300"
-        >
-          SignUp
-        </Link>
+    <div
+      className="relative min-h-screen bg-cover bg-center flex flex-col text-white"
+      style={{
+        backgroundImage: "url('https://healthray.com/wp-content/uploads/2024/02/Benefits-Of-Creating-Hospital-Management-System-1024x529.webp')",
+      }}
+    >
+      <div className="absolute inset-0 bg-black opacity-60 z-0"></div>
+
+      <nav className="relative z-10 flex flex-col md:flex-row justify-between items-center p-4 md:pb-6 bg-transparent text-white">
+        <div className="flex items-center">
+          <a
+            href="/login"
+            onClick={handleLinkClick}
+            className="px-4 py-2 mt-2 md:mt-0 text-md font-semibold bg-transparent border border-white rounded-lg hover:bg-white hover:text-blue-500 transition duration-300"
+          >
+            Login
+          </a>
+          <a
+            href="/signup"
+            onClick={handleLinkClick}
+            className="px-4 py-2 mt-2 md:mt-0 md:ml-4 text-md font-semibold bg-transparent border border-white rounded-lg hover:bg-white hover:text-blue-500 transition duration-300"
+          >
+            Sign Up
+          </a>
+        </div>
       </nav>
 
-      <div>
-        <h1 className=" text-black text-3xl p-8 w-full min-h-screen">
+      <div className="relative z-10 flex-grow flex justify-center items-center p-4">
+        <h1
+          ref={textRef}
+          className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-center leading-tight max-w-3xl md:max-w-4xl bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-white to-blue-500"
+        >
           Welcome to Hospital Management Portal
         </h1>
       </div>
-      <footer className="absolute bottom-2 w-full py-4 text-center bg-gray-200">
-        <p>Disclaimer and Copyright © 2024</p>
-      </footer>
     </div>
   );
 };
+
 export default Home;
