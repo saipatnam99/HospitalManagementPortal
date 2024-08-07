@@ -73,7 +73,7 @@ export const GET = async (request: Request, context: { params: any }) => {
             state,
             postalCode,
             email,
-            appliedBefore,
+            appliedBefore : appliedBefore === 'yes',
             department,
             procedure,
             preferredDate: new Date(preferredDate), // Convert date string to Date object

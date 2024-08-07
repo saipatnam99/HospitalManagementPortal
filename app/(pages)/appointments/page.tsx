@@ -5,6 +5,8 @@ import Sidebar from "@/components/sidebar/page";
 import Navbar from "@/components/navbar/page";
 import DataTable from "@/components/dataTable/page";
 import Swal from "sweetalert2";
+import { format } from "date-fns"
+import Link from "next/link";
 //import Loader from "@/components/loader/page";
 
 interface SidebarItem {
@@ -38,7 +40,7 @@ interface Appointment {
   state: string;
   postalCode: string;
   email: string;
-  appliedBefore: boolean;
+  appliedBefore: string;
   department: string;
   procedure: string;
   preferredDate: string;
@@ -52,7 +54,8 @@ interface EditAppointmentFormProps {
 export default function Appointments() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -108,7 +111,14 @@ export default function Appointments() {
   ];
 
   const handleEdit = (appointmentId: string) => {
-    const appointmentToEdit = appointments.find((appointment) => appointment.id === appointmentId);
+    const appointmentToEdit = appointments.find(
+      (appointment) => appointment.id === appointmentId
+    );
+    if(appointmentToEdit){
+      appointmentToEdit.preferredDate = format((appointmentToEdit.preferredDate as string), "yyyy-MM-dd'T'HH:mm");
+      appointmentToEdit.appliedBefore = String((appointmentToEdit.appliedBefore ))
+
+    }
     setSelectedAppointment(appointmentToEdit || null);
     setShowEditModal(true);
   };
@@ -129,7 +139,9 @@ export default function Appointments() {
           await axios.delete(`/api/appointments/${appointmentId}`);
           Swal.fire("Deleted!", "The appointment has been deleted.", "success");
           setAppointments((prevAppointments) =>
-            prevAppointments.filter((appointment) => appointment.id !== appointmentId)
+            prevAppointments.filter(
+              (appointment) => appointment.id !== appointmentId
+            )
           );
           setIsLoading(false);
         } catch (error) {
@@ -152,7 +164,7 @@ export default function Appointments() {
       state: "",
       postalCode: "",
       email: "",
-      appliedBefore: false,
+      appliedBefore: "",
       department: "",
       procedure: "",
       preferredDate: "",
@@ -170,12 +182,15 @@ export default function Appointments() {
       e.preventDefault();
 
       setIsLoading(true);
-      console.log(newAppointment)
+      console.log(newAppointment);
       try {
         const response = await axios.post("/api/appointments", newAppointment);
         const newModifiedAppointment = response.data.appointment;
-        console.log(newModifiedAppointment)
-        setAppointments((prevAppointments) => [...prevAppointments, newModifiedAppointment]);
+        console.log(newModifiedAppointment);
+        setAppointments((prevAppointments) => [
+          ...prevAppointments,
+          newModifiedAppointment,
+        ]);
 
         setNewAppointment({
           firstName: "",
@@ -188,7 +203,7 @@ export default function Appointments() {
           state: "",
           postalCode: "",
           email: "",
-          appliedBefore: false,
+          appliedBefore: "",
           department: "",
           procedure: "",
           preferredDate: "",
@@ -249,14 +264,26 @@ export default function Appointments() {
                 >
                   Gender
                 </label>
-                <input
+                <select
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 "
+                  id="gender"
+                  name="gender"
+                  value={newAppointment.gender}
+                  onChange={handleChange}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+                {/* <input
                   id="gender"
                   name="gender"
                   type="text"
                   value={newAppointment.gender}
                   onChange={handleChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
+                /> */}
               </div>
               <div className="flex-1">
                 <label
@@ -377,9 +404,31 @@ export default function Appointments() {
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">
-                Applied Before
+                Have you ever applied to our facility before?
               </label>
-              <input
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  className="form-radio"
+                  name="appliedBefore"
+                  value="yes"
+                  checked={newAppointment.appliedBefore === "yes"}
+                  onChange={handleChange}
+                />
+                <span className="ml-2">Yes</span>
+              </label>
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  className="form-radio"
+                  name="appliedBefore"
+                  value="no"
+                  checked={newAppointment.appliedBefore === "no"}
+                  onChange={handleChange}
+                />
+                <span className="ml-2">No</span>
+              </label>
+              {/* <input
                 id="appliedBefore"
                 name="appliedBefore"
                 type="checkbox"
@@ -390,14 +439,14 @@ export default function Appointments() {
                     appliedBefore: e.target.checked,
                   }))
                 }
-              />
+              /> */}
             </div>
             <div className="mb-4">
               <label
                 className="block text-gray-700 text-sm font-bold mb-2"
                 htmlFor="department"
               >
-                Department
+                Which department would you like to get an appointment from?
               </label>
               <input
                 id="department"
@@ -413,16 +462,29 @@ export default function Appointments() {
                 className="block text-gray-700 text-sm font-bold mb-2"
                 htmlFor="procedure"
               >
-                Procedure
+                Which procedure do you want to make an appointment for?
               </label>
-              <input
+              <select
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 "
+                id="procedure"
+                name="procedure"
+                value={newAppointment.procedure}
+                onChange={handleChange}
+              >
+                <option value="">Select Procedure</option>
+                <option value="medicalExamination">Medical Examination</option>
+                <option value="checkup">Check-up</option>
+                <option value="doctorCheck">Doctor Check</option>
+                <option value="resultAnalysis">Result Analysis</option>
+              </select>
+              {/* <input
                 id="procedure"
                 name="procedure"
                 type="text"
                 value={newAppointment.procedure}
                 onChange={handleChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-              />
+              /> */}
             </div>
             <div className="mb-4 flex space-x-4">
               <div className="flex-1">
@@ -461,7 +523,7 @@ export default function Appointments() {
             <div className="flex justify-end">
               <button
                 type="button"
-                onClick={() => setShowAddModal(false)}
+                // onClick={() => setShowAddModal(false)}
                 className="mr-4 px-6 py-2 bg-gray-400 text-white rounded"
               >
                 Cancel
@@ -492,7 +554,7 @@ export default function Appointments() {
         state: "",
         postalCode: "",
         email: "",
-        appliedBefore: false,
+        appliedBefore: "",
         department: "",
         procedure: "",
         preferredDate: "",
@@ -513,16 +575,24 @@ export default function Appointments() {
       if (!updatedAppointment.id) return;
 
       setIsLoading(true);
+    const  newUpdatedAppointment ={
+              ...updatedAppointment,
+              preferredDate: new Date(updatedAppointment.preferredDate),
+              appliedBefore: Boolean(updatedAppointment.appliedBefore)
+      }
       try {
-        const response = await axios.put(
-          `/api/appointments/${updatedAppointment.id}`,
-          updatedAppointment
+        const response = await axios.patch(
+          `/api/appointment/${updatedAppointment.id}`,
+          newUpdatedAppointment
         );
-        const updatedAppointmentData = response.data.appointment;
+        console.log(response.data)
+        const updatedAppointmentData = response.data.updatedAppointment;
 
         setAppointments((prevAppointments) =>
           prevAppointments.map((appointment) =>
-            appointment.id === updatedAppointmentData.id ? updatedAppointmentData : appointment
+            appointment.id === updatedAppointment.id
+              ? updatedAppointmentData
+              : appointment
           )
         );
 
@@ -581,14 +651,26 @@ export default function Appointments() {
                 >
                   Gender
                 </label>
-                <input
+                <select
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 "
+                  id="gender"
+                  name="gender"
+                  value={updatedAppointment.gender}
+                  onChange={handleChange}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+                {/* <input
                   id="gender"
                   name="gender"
                   type="text"
                   value={updatedAppointment.gender}
                   onChange={handleChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
+                /> */}
               </div>
               <div className="flex-1">
                 <label
@@ -709,27 +791,49 @@ export default function Appointments() {
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">
-                Applied Before
+                Have you ever applied to our facility before?
               </label>
-              <input
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  className="form-radio"
+                  name="appliedBefore"
+                  value="yes"
+                  checked={updatedAppointment.appliedBefore === "yes"}
+                  onChange={handleChange}
+                />
+                <span className="ml-2">Yes</span>
+              </label>
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  className="form-radio"
+                  name="appliedBefore"
+                  value="no"
+                  checked={updatedAppointment.appliedBefore === "no"}
+                  onChange={handleChange}
+                />
+                <span className="ml-2">No</span>
+              </label>
+              {/* <input
                 id="appliedBefore"
                 name="appliedBefore"
                 type="checkbox"
-                checked={updatedAppointment.appliedBefore}
+                checked={newAppointment.appliedBefore}
                 onChange={(e) =>
-                  setUpdatedAppointment((prev) => ({
+                  setNewAppointment((prev) => ({
                     ...prev,
                     appliedBefore: e.target.checked,
                   }))
                 }
-              />
+              /> */}
             </div>
             <div className="mb-4">
               <label
                 className="block text-gray-700 text-sm font-bold mb-2"
                 htmlFor="department"
               >
-                Department
+                Which department would you like to get an appointment from?
               </label>
               <input
                 id="department"
@@ -745,16 +849,29 @@ export default function Appointments() {
                 className="block text-gray-700 text-sm font-bold mb-2"
                 htmlFor="procedure"
               >
-                Procedure
+                Which procedure would you like to get an appointment from?
               </label>
-              <input
+              <select
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 "
+                id="procedure"
+                name="procedure"
+                value={updatedAppointment.procedure}
+                onChange={handleChange}
+              >
+                <option value="">Select Procedure</option>
+                <option value="medicalCheckup">Medical Examination</option>
+                <option value="checkUp">Check-up</option>
+                <option value="doctorCheckup">Doctor Check</option>
+                <option value="resultAnalysis">Result Analysis</option>
+              </select>
+              {/* <input
                 id="procedure"
                 name="procedure"
                 type="text"
                 value={updatedAppointment.procedure}
                 onChange={handleChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-              />
+              /> */}
             </div>
             <div className="mb-4 flex space-x-4">
               <div className="flex-1">
@@ -767,7 +884,7 @@ export default function Appointments() {
                 <input
                   id="preferredDate"
                   name="preferredDate"
-                  type="dateTime"
+                  type="dateTime-local"
                   value={updatedAppointment.preferredDate}
                   onChange={handleChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
@@ -875,27 +992,32 @@ export default function Appointments() {
     //   )} */}
     // </div>
     <div className="flex">
-    <Sidebar sidebarItems={sidebarItems} />
-    <div className="flex-1 flex flex-col">
-      <Navbar />
-      <div className="p-4">
-        <div className="flex justify-between mb-4">
-          <h1 className="text-2xl font-semibold">Doctors</h1>
-          <button
-            className="px-4 py-2 bg-green-500 text-white rounded"
-            onClick={() => setShowAddModal(true)}
-          >
-            Add Doctor
-          </button>
+      <Sidebar sidebarItems={sidebarItems} />
+      <div className="flex-1 flex flex-col">
+        <Navbar />
+        <div className="p-4">
+          <div className="flex justify-between mb-4">
+            <h1 className="text-2xl font-semibold">Doctors</h1>
+            <button
+              className="px-4 py-2 bg-green-500 text-white rounded"
+              // onClick={() => setShowAddModal(true)}
+            >
+             <Link href={``}>
+             Add Doctor</Link>
+            </button>
+          </div>
+
+          <DataTable
+            data={appointments}
+            columns={columns}
+            isLoading={undefined}
+          />
         </div>
-
-        <DataTable data={appointments} columns={columns} isLoading={undefined} />
       </div>
+      {/* {showAddModal && <AddAppointmentForm />} */}
+      {showEditModal && (
+        <EditAppointmentForm appointment={selectedAppointment} />
+      )}
     </div>
-    {showAddModal && <AddAppointmentForm />}
-    {showEditModal && <EditAppointmentForm appointment={selectedAppointment} />}
-  </div>
   );
-};
-
-
+}

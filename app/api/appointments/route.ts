@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         state,
         postalCode,
         email,
-        appliedBefore,
+        appliedBefore: appliedBefore === 'yes' ,
         department,
         procedure,
         preferredDate: new Date(preferredDate), // Convert date string to Date object
