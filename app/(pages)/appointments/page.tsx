@@ -17,11 +17,11 @@ interface SidebarItem {
 
 const sidebarItems: SidebarItem[] = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/appointments", label: "Appointments", active: true },
-  { href: "/doctors", label: "Doctors" },
+  { href: "/doctors", label: "Doctors"},
   { href: "/patients", label: "Patients" },
+  { href: "/appointments", label: "Appointments", active: true  },
   { href: "/services", label: "Services" },
-  { href: "/billing", label: "Billing" },
+  { href: "/billing", label: " Billing" },
   { href: "/insurance", label: "Insurance" },
   { href: "/policies", label: "Policies" },
   { href: "/faq", label: "FAQ" },
@@ -1002,8 +1002,8 @@ export default function Appointments() {
               className="px-4 py-2 bg-green-500 text-white rounded"
               // onClick={() => setShowAddModal(true)}
             >
-             <Link href={``}>
-             Add Doctor</Link>
+             <Link href={`/addappoinment`}>
+             Add Appointment</Link>
             </button>
           </div>
 
