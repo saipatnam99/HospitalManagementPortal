@@ -582,7 +582,7 @@ export default function Appointments() {
       }
       try {
         const response = await axios.patch(
-          `/api/appointment/${updatedAppointment.id}`,
+          `/api/appointments/${updatedAppointment.id}`,
           newUpdatedAppointment
         );
         console.log(response.data)
@@ -992,17 +992,22 @@ export default function Appointments() {
     //   )} */}
     // </div>
     <div className="flex">
+      
+      
+      <div className=" min-h-screen flex-1 flex flex-col">
+      <Navbar />
+      <div className="bg-gray-100 flex flex-row">
       <Sidebar sidebarItems={sidebarItems} />
-      <div className="flex-1 flex flex-col">
-        <Navbar />
+      
+      
         <div className="p-4">
           <div className="flex justify-between mb-4">
             <h1 className="text-2xl font-semibold">Doctors</h1>
             <button
               className="px-4 py-2 bg-green-500 text-white rounded"
-              // onClick={() => setShowAddModal(true)}
+              onClick={() => setShowAddModal(true)}
             >
-             <Link href={`/addappoinment`}>
+             <Link href={''}>
              Add Appointment</Link>
             </button>
           </div>
@@ -1014,10 +1019,11 @@ export default function Appointments() {
           />
         </div>
       </div>
-      {/* {showAddModal && <AddAppointmentForm />} */}
+      {showAddModal && <AddAppointmentForm />}
       {showEditModal && (
         <EditAppointmentForm appointment={selectedAppointment} />
       )}
+    </div>
     </div>
   );
 }
