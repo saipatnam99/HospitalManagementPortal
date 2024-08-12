@@ -1,14 +1,24 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import Navbar from "@/components/navbar/page";
 import Sidebar from "@/components/sidebar/page";
-const sidebarItems = [
-  { href: '/dashboard', label: 'Dashboard' },
+import Navbar from "@/components/navbar/page";
+import DataTable from "@/components/dataTable/page";
+import Link from "next/link";
+import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
+
+interface SidebarItem {
+  href: string;
+  label: string;
+  active?: boolean;
+}
+
+const sidebarItems: SidebarItem[] = [
+  { href: "/dashboard", label: "Dashboard" },
   { href: "/doctors", label: "Doctors" },
   { href: "/patients", label: "Patients", active: true },
-  { href: "/appointments", label: "Appointments" },
+  { href: "/appointment", label: "Appointments" },
   { href: "/services", label: "Services" },
   { href: "/billing", label: " Billing" },
   { href: "/insurance", label: "Insurance" },
@@ -17,499 +27,156 @@ const sidebarItems = [
   { href: "/notifications", label: "Notifications" },
 ];
 
-export default function Register() {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    age: "",
-    dateOfBirth: "",
-    gender: "Male",
-    phone: "",
-    email: "",
-    address: "",
-    addressLine2: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    paymentMethod: "Cash",
-    cashAmount: "",
-    cardType: "",
-    cardDetails: "",
-    upiReceived: false,
-  });
+interface Patient {
+  id?: string;
+  firstName: string;
+  lastName: string;
+  age: number;
+  dateOfBirth: string;
+  gender: string;
+  phone: string;
+  email: string;
+  address: string;
+  addressLine2: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  paymentMethod: string;
+  cashAmount: string;
+  cardType: string;
+  cardDetails: string;
+  upiReceived: string;
+}
 
-  const [paymentReceived, setPaymentReceived] = useState(false);
-  const [showQRCode, setShowQRCode] = useState(false); // To 
-  const router = useRouter();
+interface EditPatientFormProps {
+  patient: Patient | null;
+}
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+export default function Patients() {
+  // const [showAddModal, setShowAddModal] = useState(false);
+  // const [showEditModal, setShowEditModal] = useState(false);
+  // const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const router=useRouter()
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get("/api/patients");
+        console.log(response.data);
+        setPatients(response.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching patients:", error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchPatients();
+  }, []);
+
+  const columns = [
+    { header: () => "First Name", accessorKey: "firstName" },
+    { header: () => "Last Name", accessorKey: "lastName" },
+    { header: () => "Email", accessorKey: "email" },
+    { header: () => "Phone", accessorKey: "phone" },
+    { header: () => "Address", accessorKey: "address " ,
+    cell: ({ row }: { row: any }) => (
+      <>
+        {`${row.address},${row.city}, ${row.state}, ${row.postalCode}`}
+      </>
+    )
+  },
+    { header: () => "Age", accessorKey: "age" },
+    { header: () => "Gender", accessorKey: "gender" },
+    {
+      header: () => "Actions",
+      accessorKey: "actions",
+      cell: ({ row }: { row: any }) => (
+        <>
+          <button
+            className="mb-2 mr-2 px-6 py-2 bg-yellow-500 text-white rounded"
+            onClick={() => handleEdit(row.id)}
+          >
+            Edit
+          </button>
+          <button
+            className="px-6 py-2 bg-blue-500 text-white rounded"
+            onClick={() => handleCreateAppointment(row.id)}
+          >
+            Create Appointment
+          </button>
+          <button
+            className="px-4 py-2 bg-red-500 text-white rounded"
+            onClick={() => handleDelete(row.id)}
+          >
+            Delete
+          </button>
+        </>
+      ),
+    },
+  ];
+
+  const handleEdit = (id: string) => {
+    const patientToEdit = patients.find((patient) => patient.id === id);
+    console.log(patientToEdit)
+    if (patientToEdit) {
+      router.push(
+        `/patients/${id}`
+      );
+    }
+  };
+  const handleCreateAppointment = (id: string) => {
+    router.push(`/appointment/newAppointment?patientId=${id}`);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (formData.paymentMethod === "UPI" && !paymentReceived) {
-      alert("Please confirm the UPI payment before submitting.");
-      return;
-    }
-    const newModifiedData={
-      ...formData,
-      dateofBirth : new Date(formData.dateOfBirth),
-      age: Number(formData.age),
-      upiReceived: Boolean(formData.upiReceived)
-    }
-    console.log(newModifiedData)
-    try {
-      console.log(formData)
-      const response = await axios.post("/api/patients", newModifiedData);
-      console.log(response.data);
-     // const newModifiedData = response.data.patient;
-      //setFormData((prevData) => [...prevData, newModifiedData]);
-
-      setFormData({
-        firstName: "",
-        lastName: "",
-        age: "",
-        dateOfBirth: "",
-        gender: "Male",
-        phone: "",
-        email: "",
-        address: "",
-        addressLine2: "",
-        city: "",
-        state: "",
-        postalCode: "",
-        paymentMethod: "Cash",
-        cashAmount: "",
-        cardType: "",
-        cardDetails: "",
-        upiReceived: false,
-      });
-
-      router.push("/dashboard")
-      // setShowAddModal(false);
-      // setIsLoading(false);
-    } catch (error) {
-      console.error("Error adding doctor:", error);
-      // setIsLoading(false);
-    }
-
-    // try {
-    //   const response = await axios.post('/api/patients', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(formData),
-    //   });
-
-    //   // if (response.ok) {
-    //   //   router.push('/');
-    //   // } else {
-    //   //   console.error('Failed to register patient');
-    //   // }
-    // } catch (error) {
-    //   console.error('An error occurred', error);
-    // }
-  };
-
-  // const handleUPIPayment = () => {
-  //   setTimeout(() => {
-  //     setPaymentReceived(true);
-  //     setFormData({ ...formData, upiReceived: true });
-  //     alert("UPI Payment received!");
-  //   }, 2000);
-  // };
-  const handleUPIPayment = () => {
-    setShowQRCode(true); // Show the QR code when the button is clicked
-  };
-
-  const handlePaymentReceived = () => {
-    setTimeout(() => {
-      setFormData({ ...formData, upiReceived: true });
-      alert('UPI Payment received!');
-      setShowQRCode(false); // Hide the QR code after payment is received
-    }, 2000); // Simulate a delay in payment processing
+  
+  const handleDelete = async (id: string) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Once deleted, you will not be able to recover this patient!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        setIsLoading(true);
+        try {
+          await axios.delete(`/api/patients/${id}`);
+          Swal.fire("Deleted!", "The patient has been deleted.", "success");
+          setPatients((prevPatients) =>
+            prevPatients.filter((patient) => patient.id !== id)
+          );
+          setIsLoading(false);
+        } catch (error) {
+          console.error("Error deleting doctor:", error);
+          setIsLoading(false);
+        }
+      }
+    });
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-    <Navbar />
-    <div className="bg-gray-100 flex flex-row">
-      <Sidebar sidebarItems={sidebarItems} />
-    
-        
+    <div className="flex flex-col">
+         <Navbar />
+      <div className=" flex flex-row">
    
-
-    <div className="max-w-lg mx-auto mt-10">
-      <h1 className="text-2xl font-bold mb-5">Patient Registration</h1>
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="flex flex-2 flex-row">
-        <div>
-          <label htmlFor="firstName" className="block text-sm font-medium">
-            First Name
-          </label>
-          <input
-            type="text"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleChange}
-            required
-            className="mt-1 p-2 w-full border rounded-md"
-          />
-        </div>
-        <div>
-          <label htmlFor="lastName" className="block text-sm font-medium">
-            Last Name
-          </label>
-          <input
-            type="text"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleChange}
-            required
-            className="mt-1 p-2 w-full border rounded-md"
-          />
-        </div>
-        </div>
-
-        <div>
-          <label htmlFor="age" className="block text-sm font-medium">
-            Age
-          </label>
-          <input
-            type="number"
-            name="age"
-            value={formData.age}
-            onChange={handleChange}
-            required
-            className="mt-1 p-2 w-full border rounded-md"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="dateOfBirth" className="block text-sm font-medium">
-            Date of Birth
-          </label>
-          <input
-            type="date"
-            name="dateOfBirth"
-            value={formData.dateOfBirth}
-            onChange={handleChange}
-            required
-            className="mt-1 p-2 w-full border rounded-md"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="gender" className="block text-sm font-medium">
-            Gender
-          </label>
-          <select
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            required
-            className="mt-1 p-2 w-full border rounded-md"
-          >
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="phone" className="block text-sm font-medium">
-            Phone Number
-          </label>
-          <input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            required
-            className="mt-1 p-2 w-full border rounded-md"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium">
-            Email
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            className="mt-1 p-2 w-full border rounded-md"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="address" className="block text-sm font-medium">
-            Address Line 1
-          </label>
-          <input
-            type="text"
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            required
-            className="mt-1 p-2 w-full border rounded-md"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="addressLine2" className="block text-sm font-medium">
-            Address Line 2
-          </label>
-          <input
-            type="text"
-            name="addressLine2"
-            value={formData.addressLine2}
-            onChange={handleChange}
-            className="mt-1 p-2 w-full border rounded-md"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="city" className="block text-sm font-medium">
-            City
-          </label>
-          <input
-            type="text"
-            name="city"
-            value={formData.city}
-            onChange={handleChange}
-            required
-            className="mt-1 p-2 w-full border rounded-md"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="state" className="block text-sm font-medium">
-            State
-          </label>
-          <input
-            type="text"
-            name="state"
-            value={formData.state}
-            onChange={handleChange}
-            required
-            className="mt-1 p-2 w-full border rounded-md"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="postalCode" className="block text-sm font-medium">
-            Postal Code
-          </label>
-          <input
-            type="text"
-            name="postalCode"
-            value={formData.postalCode}
-            onChange={handleChange}
-            required
-            className="mt-1 p-2 w-full border rounded-md"
-          />
-        </div>
-
-        {/* <div>
-          <label htmlFor="paymentMethod" className="block text-sm font-medium">
-            Payment Method
-          </label>
-          <select
-            name="paymentMethod"
-            value={formData.paymentMethod}
-            onChange={handleChange}
-            required
-            className="mt-1 p-2 w-full border rounded-md"
-          >
-            <option value="Cash">Cash</option>
-            <option value="Card">Card</option>
-            <option value="UPI">UPI</option>
-          </select>
-        </div> */}
-             {/* Payment Method Section */}
-             <div>
-          <label htmlFor="paymentMethod" className="block text-sm font-medium">Payment Method</label>
-          <select
-            name="paymentMethod"
-            value={formData.paymentMethod}
-            onChange={handleChange}
-            required
-            className="mt-1 p-2 w-full border rounded-md"
-          >
-            <option value="Cash">Cash</option>
-            <option value="Card">Card</option>
-            <option value="UPI">UPI</option>
-          </select>
-        </div>
-
-        {/* Conditional Fields Based on Payment Method */}
-        {formData.paymentMethod === 'Cash' && (
-          <div>
-            <label htmlFor="cashAmount" className="block text-sm font-medium">Enter Cash Amount</label>
-            <input
-              type="text"
-              name="cashAmount"
-              value={formData.cashAmount}
-              onChange={handleChange}
-              required
-              className="mt-1 p-2 w-full border rounded-md"
-            />
-          </div>
-        )}
-
-        {formData.paymentMethod === 'Card' && (
-          <>
-            <div>
-              <label htmlFor="cardType" className="block text-sm font-medium">Select Card Type</label>
-              <select
-                name="cardType"
-                value={formData.cardType}
-                onChange={handleChange}
-                required
-                className="mt-1 p-2 w-full border rounded-md"
-              >
-                <option value="Debit">Debit Card</option>
-                <option value="Credit">Credit Card</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="cardDetails" className="block text-sm font-medium">Enter Card Details</label>
-              <input
-                type="text"
-                name="cardDetails"
-                value={formData.cardDetails}
-                onChange={handleChange}
-                required
-                className="mt-1 p-2 w-full border rounded-md"
-              />
-            </div>
-          </>
-        )}
-
-        {formData.paymentMethod === 'UPI' && (
-          <div>
-            <label htmlFor="upiAmount" className="block text-sm font-medium">Amount to Pay</label>
-            <input
-              type="text"
-              name="upiAmount"
-              value={formData.cashAmount} // Display the amount set in Cash
-             
-              className="mt-1 p-2 w-full border rounded-md"
-            />
-            <button
-              type="button"
-              onClick={handleUPIPayment}
-              className="w-full bg-green-500 text-white p-2 rounded-md mt-2"
-            >
-              Scan QR Code and Confirm Payment
+        <Sidebar sidebarItems={sidebarItems} />
+        <div className="p-4">
+          <div className="flex justify-between mb-4">
+            <h1 className="text-2xl font-semibold">Patients</h1>
+            <button className="px-4 py-2 bg-green-500 text-white rounded">
+              <Link href={"/patients/addPatient"}> Add Patient</Link>
             </button>
-            {showQRCode && (
-              <div className="mt-4">
-                <img
-                  src="/path-to-your-qr-code-image.png" // Replace with the actual path to your QR code image
-                  alt="QR Code"
-                  className="mx-auto"
-                />
-                <button
-                  type="button"
-                  onClick={handlePaymentReceived}
-                  className="w-full bg-blue-500 text-white p-2 rounded-md mt-2"
-                >
-                  Confirm Payment Received
-                </button>
-              </div>
-            )}
-            {formData.upiReceived && (
-              <p className="text-green-600 font-semibold mt-2">Payment received via UPI!</p>
-            )}
           </div>
-        )}
 
-        {/* Conditional Fields Based on Payment Method */}
-        {/* {formData.paymentMethod === "Cash" && (
-          <div>
-            <label htmlFor="cashAmount" className="block text-sm font-medium">
-              Enter Cash Amount
-            </label>
-            <input
-              type="text"
-              name="cashAmount"
-              value={formData.cashAmount}
-              onChange={handleChange}
-              required
-              className="mt-1 p-2 w-full border rounded-md"
-            />
-          </div>
-        )} */}
-
-        {/* {formData.paymentMethod === "Card" && (
-          <>
-            <div>
-              <label htmlFor="cardType" className="block text-sm font-medium">
-                Select Card Type
-              </label>
-              <select
-                name="cardType"
-                value={formData.cardType}
-                onChange={handleChange}
-                required
-                className="mt-1 p-2 w-full border rounded-md"
-              >
-                <option value="Debit">Debit Card</option>
-                <option value="Credit">Credit Card</option>
-              </select>
-            </div>
-            <div>
-              <label
-                htmlFor="cardDetails"
-                className="block text-sm font-medium"
-              >
-                Enter Card Details
-              </label>
-              <input
-                type="text"
-                name="cardDetails"
-                value={formData.cardDetails}
-                onChange={handleChange}
-                required
-                className="mt-1 p-2 w-full border rounded-md"
-              />
-            </div>
-          </>
-        )} */}
-
-        {/* {formData.paymentMethod === "UPI" && (
-          <div>
-            <button
-              type="button"
-              onClick={handleUPIPayment}
-              className="w-full bg-green-500 text-white p-2 rounded-md"
-            >
-              Scan QR Code and Confirm Payment
-            </button>
-            {paymentReceived && (
-              <p className="text-green-600 font-semibold mt-2">
-                Payment received via UPI!
-              </p>
-            )}
-          </div>
-        )} */}
-
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded-md"
-        >
-          Register
-        </button>
-      </form>
-    </div>
-    </div>
+          <DataTable data={patients} columns={columns} isLoading={isLoading} />
+        </div>
+      </div>
     </div>
   );
 }

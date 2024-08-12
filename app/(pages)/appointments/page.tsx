@@ -19,7 +19,7 @@ const sidebarItems: SidebarItem[] = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/doctors", label: "Doctors"},
   { href: "/patients", label: "Patients" },
-  { href: "/appointments", label: "Appointments", active: true  },
+  { href: "/appointment", label: "Appointments", active: true  },
   { href: "/services", label: "Services" },
   { href: "/billing", label: " Billing" },
   { href: "/insurance", label: "Insurance" },

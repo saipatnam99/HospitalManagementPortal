@@ -28,21 +28,23 @@ export const GET = async (request: Request, context: { params: any }) => {
     try {
       const body = await request.json();
       const {
-        firstName,
-        lastName,
-        gender,
-        phone,
-        address,
-        addressLine2,
-        city,
-        state,
-        postalCode,
-        email,
-        appliedBefore,
-        department,
-        procedure,
-        preferredDate,
-        preferredTime,
+        date,
+        time,patientId,doctorId
+        // firstName,
+        // lastName,
+        // gender,
+        // phone,
+        // address,
+        // addressLine2,
+        // city,
+        // state,
+        // postalCode,
+        // email,
+        // appliedBefore,
+        // department,
+        // procedure,
+        // preferredDate,
+        // preferredTime,
       } = body
   
       if (!appointmentId) {
@@ -63,21 +65,23 @@ export const GET = async (request: Request, context: { params: any }) => {
       const updatedAppointment= await prisma.appointment.update({
         where: { id: appointmentId},
         data: {
-            firstName,
-            lastName,
-            gender,
-            phone,
-            address,
-            addressLine2,
-            city,
-            state,
-            postalCode,
-            email,
-            appliedBefore : appliedBefore === 'yes',
-            department,
-            procedure,
-            preferredDate: new Date(preferredDate), // Convert date string to Date object
-            preferredTime,
+          date: new Date(date),
+          time, patientId,doctorId,
+            // firstName,
+            // lastName,
+            // gender,
+            // phone,
+            // address,
+            // addressLine2,
+            // city,
+            // state,
+            // postalCode,
+            // email,
+            // appliedBefore : appliedBefore === 'yes',
+            // department,
+            // procedure,
+            // preferredDate: new Date(preferredDate), // Convert date string to Date object
+            // preferredTime,
         },
       });
 

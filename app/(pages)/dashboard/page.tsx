@@ -8,7 +8,7 @@ const sidebarItems = [
   { href: '/dashboard', label: 'Dashboard', active: true },
   { href: "/doctors", label: "Doctors" },
   { href: "/patients", label: "Patients" },
-  { href: "/appointments", label: "Appointments" },
+  { href: "/appointment", label: "Appointments" },
   { href: "/services", label: "Services" },
   { href: "/billing", label: " Billing" },
   { href: "/insurance", label: "Insurance" },
