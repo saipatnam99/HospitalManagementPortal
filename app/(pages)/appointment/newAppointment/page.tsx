@@ -58,12 +58,12 @@ const AddAppointmentForm = () => {
       try {
         const patientResponse = await axios.get(`/api/patients/${patientId}`);
         setPatientDetails(patientResponse.data);
-        setFormData({ ...formData, patientId: patientId || "" });
+        setFormData(prevFormData => ({ ...prevFormData, patientId: patientId || "" }));
       } catch (error) {
         console.error("Error fetching patient data:", error);
       }
     };
-
+  
     const fetchDoctors = async () => {
       try {
         const response = await axios.get(`/api/doctors`);
@@ -73,12 +73,13 @@ const AddAppointmentForm = () => {
         console.error("Error fetching doctors:", error);
       }
     };
-
+  
     if (patientId) {
       fetchPatientData();
       fetchDoctors();
     }
   }, [patientId]);
+  
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
