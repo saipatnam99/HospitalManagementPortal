@@ -6,7 +6,7 @@ import Navbar from "@/components/navbar/page";
 import Sidebar from "@/components/sidebar/page";
 
 const sidebarItems = [
-  { href: '/dashboard', label: 'Dashboard' },
+  { href: "/dashboard", label: "Dashboard" },
   { href: "/doctors", label: "Doctors" },
   { href: "/patients", label: "Patients" },
   { href: "/appointment", label: "Appointments", active: true },
@@ -94,7 +94,7 @@ const AddAppointmentForm = () => {
         ...formData,
         date: new Date(formData.date),
       };
-      console.log(newAppointment)
+      console.log(newAppointment);
       await axios.post("/api/appointments", newAppointment);
       router.push("/appointment");
     } catch (error) {
@@ -111,22 +111,30 @@ const AddAppointmentForm = () => {
         <div className="max-w-lg mx-auto mt-10">
           <h1 className="text-2xl font-bold mb-5">Add Appointment</h1>
           <div className="mb-4">
-              <label htmlFor="patientDetails" className="block text-sm font-medium">
-                Patient Details
-              </label>
-              {patientDetails ? (
-                <div className="space-y-2">
-                  <p><strong>Name:</strong> {patientDetails.firstName} {patientDetails.lastName}</p>
-                  <p><strong>Email:</strong> {patientDetails.email}</p>
-                  <p><strong>Phone:</strong> {patientDetails.phone}</p>
-                </div>
-              ) : (
-                <p>Loading...</p>
-              )}
-            </div>
+            <label
+              htmlFor="patientDetails"
+              className="block text-sm font-medium"
+            >
+              Patient Details
+            </label>
+            {patientDetails ? (
+              <div className="space-y-2">
+                <p>
+                  <strong>Name:</strong> {patientDetails.firstName}{" "}
+                  {patientDetails.lastName}
+                </p>
+                <p>
+                  <strong>Email:</strong> {patientDetails.email}
+                </p>
+                <p>
+                  <strong>Phone:</strong> {patientDetails.phone}
+                </p>
+              </div>
+            ) : (
+              <p>Loading...</p>
+            )}
+          </div>
           <form onSubmit={handleSubmit} className="space-y-5">
-           
-
             <div className="mb-4">
               <label htmlFor="doctorId" className="block text-sm font-medium">
                 Select Doctor
