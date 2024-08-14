@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import Navbar from "@/components/navbar/page";
 import Sidebar from "@/components/sidebar/page";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";  // Import the CSS for the phone input
+
 const sidebarItems = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: "/doctors", label: "Doctors" },
@@ -47,6 +50,10 @@ export default function AddPatientForm() {
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  const handlePhoneChange = (value: string) => {
+    setFormData({ ...formData, phone: value });
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,8 +62,10 @@ export default function AddPatientForm() {
       alert("Please confirm the UPI payment before submitting.");
       return;
     }
+    const formattedPhoneNumber = `+${formData.phone}`; // Assuming the phoneNumber field includes the country code
     const newModifiedData={
       ...formData,
+      phone: formattedPhoneNumber,
       dateofBirth : new Date(formData.dateOfBirth),
       age: Number(formData.age),
       upiReceived: Boolean(formData.upiReceived)
@@ -218,8 +227,25 @@ export default function AddPatientForm() {
             <option value="Other">Other</option>
           </select>
         </div>
-
         <div>
+              <label htmlFor="phone" className="block text-sm font-medium">
+                Phone Number
+              </label>
+              <PhoneInput
+                country={"in"} // Set default country
+                value={formData.phone}
+                onChange={handlePhoneChange}
+                inputClass="w-full mt-1 p-2 border rounded-md"
+                containerClass="w-full"
+                inputProps={{
+                  name: "phone",
+                  required: true,
+                  autoFocus: true,
+                }}
+              />
+            </div>
+
+        {/* <div>
           <label htmlFor="phone" className="block text-sm font-medium">
             Phone Number
           </label>
@@ -231,7 +257,7 @@ export default function AddPatientForm() {
             required
             className="mt-1 p-2 w-full border rounded-md"
           />
-        </div>
+        </div> */}
 
         <div>
           <label htmlFor="email" className="block text-sm font-medium">

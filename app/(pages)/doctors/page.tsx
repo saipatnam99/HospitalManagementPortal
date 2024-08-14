@@ -5,6 +5,7 @@ import Sidebar from "@/components/sidebar/page";
 import Navbar from "@/components/navbar/page";
 import DataTable from "@/components/dataTable/page";
 import Swal from "sweetalert2";
+import PhoneInput from "react-phone-input-2";
 //import Loader from "@/components/loader/page";
 
 interface SidebarItem {
@@ -143,11 +144,17 @@ export default function Doctors() {
       setNewDoctor((prev) => ({ ...prev, [name]: value }));
     };
 
+    const handlePhoneChange = (value: string) => {
+      setNewDoctor({ ...newDoctor, phone: value });
+    };
+  
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
+      const formattedPhoneNumber = `+${newDoctor.phone}`;
 
       const modifiedDoctor = {
         ...newDoctor,
+        phone:formattedPhoneNumber,
         experience: Number(newDoctor.experience),
       };
       setIsLoading(true);
@@ -222,14 +229,26 @@ export default function Doctors() {
                 >
                   Phone
                 </label>
-                <input
+                <PhoneInput
+                country={"in"} // Set default country
+                value={newDoctor.phone}
+                onChange={handlePhoneChange}
+                inputClass="w-full mt-1 p-2 border rounded-md"
+                containerClass="w-full"
+                inputProps={{
+                  name: "phone",
+                  required: true,
+                  autoFocus: true,
+                }}
+              />
+                {/* <input
                   id="phone"
                   name="phone"
                   type="text"
                   value={newDoctor.phone}
                   onChange={handleChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
+                /> */}
               </div>
               <div className="flex-1">
                 <label

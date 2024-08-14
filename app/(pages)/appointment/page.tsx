@@ -74,6 +74,15 @@ export default function Appointments() {
         </>
       ),
     },
+    {
+      header: () => "Patient phone",
+      accessorKey: "phone",
+      cell: ({ row }: { row: any }) => (
+        <>
+          {row.patient.phone} 
+        </>
+      ),
+    },
 
     {
       header: () => "Doctor Name",

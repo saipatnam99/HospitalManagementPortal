@@ -17,7 +17,7 @@ export const GET = async (request: Request) => {
 
 export async function POST(req: Request) {
   const {
-          firstName, lastName, age, dateOfBirth, gender, phone, email,
+          firstName,lastName, age, dateOfBirth, gender, phone, email,
           address, addressLine2, city, state, postalCode,
           paymentMethod, cashAmount, cardType, cardDetails, upiReceived,
         } = await req.json();
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
   try {
     const newPatient = await prisma.patient.create({
       data: {
-                  firstName,
+              firstName,
                   lastName,
                   age: parseInt(age, 10),
           dateOfBirth: new Date(dateOfBirth),
@@ -53,6 +53,7 @@ export async function POST(req: Request) {
       { status: 200 }
     );
   } catch (error) {
+    console.log(error)
     return new NextResponse(
       JSON.stringify({
         message: "Error in adding Patient",
