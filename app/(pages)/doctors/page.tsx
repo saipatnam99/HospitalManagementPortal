@@ -5,6 +5,7 @@ import Sidebar from "@/components/sidebar/page";
 import Navbar from "@/components/navbar/page";
 import DataTable from "@/components/dataTable/page";
 import Swal from "sweetalert2";
+import PhoneInput from "react-phone-input-2";
 //import Loader from "@/components/loader/page";
 
 interface SidebarItem {
@@ -46,6 +47,7 @@ export default function Doctors() {
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -99,6 +101,10 @@ export default function Doctors() {
     setShowEditModal(true);
   };
 
+   const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   const handleDelete = async (doctorId: string) => {
     Swal.fire({
       title: "Are you sure?",
@@ -143,11 +149,17 @@ export default function Doctors() {
       setNewDoctor((prev) => ({ ...prev, [name]: value }));
     };
 
+    const handlePhoneChange = (value: string) => {
+      setNewDoctor({ ...newDoctor, phone: value });
+    };
+  
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
+      const formattedPhoneNumber = `+${newDoctor.phone}`;
 
       const modifiedDoctor = {
         ...newDoctor,
+        phone:formattedPhoneNumber,
         experience: Number(newDoctor.experience),
       };
       setIsLoading(true);
@@ -222,14 +234,26 @@ export default function Doctors() {
                 >
                   Phone
                 </label>
-                <input
+                <PhoneInput
+                country={"in"} // Set default country
+                value={newDoctor.phone}
+                onChange={handlePhoneChange}
+                inputClass="w-full mt-1 p-2 border rounded-md"
+                containerClass="w-full"
+                inputProps={{
+                  name: "phone",
+                  required: true,
+                  autoFocus: true,
+                }}
+              />
+                {/* <input
                   id="phone"
                   name="phone"
                   type="text"
                   value={newDoctor.phone}
                   onChange={handleChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
+                /> */}
               </div>
               <div className="flex-1">
                 <label
@@ -477,11 +501,26 @@ export default function Doctors() {
   };
 
   return (
-    <div className="flex">
-      <Sidebar sidebarItems={sidebarItems} />
-      <div className="flex-1 flex flex-col">
-        <Navbar />
-        <div className="p-4">
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <div className="bg-gray-100 flex flex-1 flex-row">
+        {/* Toggle Button for Sidebar */}
+        <button
+          className="md:hidden p-2 text-white bg-blue-600"
+          onClick={toggleSidebar}
+        >
+          {isSidebarOpen ? "Close Menu" : "Menu"}
+        </button>
+
+        {/* Sidebar component */}
+        <div
+          className={`${
+            isSidebarOpen ? "block" : "hidden"
+          } md:block md:w-64 h-full bg-white shadow-lg`}
+        >
+          <Sidebar sidebarItems={sidebarItems} />
+        </div>
+        <div className="flex-1 p-4 overflow-x-auto">
           <div className="flex justify-between mb-4">
             <h1 className="text-2xl font-semibold">Doctors</h1>
             <button

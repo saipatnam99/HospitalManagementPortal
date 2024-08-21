@@ -50,6 +50,7 @@ const EditAppointmentForm = () => {
   const [patientDetails, setPatientDetails] = useState<Patient | null>(null);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router = useRouter();
   const { id } = useParams(); // Use useParams to get the id from the URL
 
@@ -113,24 +114,53 @@ const EditAppointmentForm = () => {
     }
   };
 
+   const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <div className="bg-gray-100 flex flex-row">
-        <Sidebar sidebarItems={sidebarItems} />
+      <div className="bg-gray-100 flex flex-1 flex-row">
+        {/* Toggle Button for Sidebar */}
+        <button
+          className="md:hidden p-2 text-white bg-blue-600"
+          onClick={toggleSidebar}
+        >
+          {isSidebarOpen ? "Close Menu" : "Menu"}
+        </button>
+
+        {/* Sidebar component */}
+        <div
+          className={`${
+            isSidebarOpen ? "block" : "hidden"
+          } md:block md:w-64 h-full bg-white shadow-lg`}
+        >
+          <Sidebar sidebarItems={sidebarItems} />
+        </div>
 
         <div className="max-w-lg mx-auto mt-10">
           <h1 className="text-2xl font-bold mb-5">Edit Appointment</h1>
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="mb-4">
-              <label htmlFor="patientDetails" className="block text-sm font-medium">
+              <label
+                htmlFor="patientDetails"
+                className="block text-sm font-medium"
+              >
                 Patient Details
               </label>
               {patientDetails ? (
                 <div className="space-y-2">
-                  <p><strong>Name:</strong> {patientDetails.firstName} {patientDetails.lastName}</p>
-                  <p><strong>Email:</strong> {patientDetails.email}</p>
-                  <p><strong>Phone:</strong> {patientDetails.phone}</p>
+                  <p>
+                    <strong>Name:</strong> {patientDetails.firstName}{" "}
+                    {patientDetails.lastName}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {patientDetails.email}
+                  </p>
+                  <p>
+                    <strong>Phone:</strong> {patientDetails.phone}
+                  </p>
                 </div>
               ) : (
                 <p>Loading...</p>

@@ -1,91 +1,54 @@
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
-const prisma: PrismaClient = new PrismaClient();
+const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
-    const {
-      date,
-      time,
-      // patient,
-      // doctor,
-      patientId, doctorId
-      // firstName,
-      // lastName,
-      // gender,
-      // phone,
-      // address,
-      // addressLine2,
-      // city,
-      // state,
-      // postalCode,
-      // email,
-      // appliedBefore,
-      // department,
-      // procedure,
-      // preferredDate,
-      // preferredTime,
-    } = await req.json();
+    const { date, time, patientId, doctorId } = await req.json();
+
+    const patient = await prisma.patient.findUnique({ where: { id: patientId } });
+    const doctor = await prisma.doctor.findUnique({ where: { id: doctorId } });
+
+    if (!patient || !doctor) {
+      throw new Error("Invalid patient or doctor ID");
+    }
+
+    if (!patient.phone) {
+      throw new Error("Patient phone number is missing");
+    }
 
     const newAppointment = await prisma.appointment.create({
       data: {
-        date : new Date(date),
+        date: new Date(date),
         time,
-      //  patient,
         patientId,
-      //  doctor,
-        doctorId
-        // firstName,
-        // lastName,
-        // gender,
-        // phone,
-        // address,
-        // addressLine2,
-        // city,
-        // state,
-        // postalCode,
-        // email,
-        // appliedBefore: appliedBefore === 'yes' ,
-        // department,
-        // procedure,
-        // preferredDate: new Date(preferredDate), // Convert date string to Date object
-        // preferredTime,
+        doctorId,
       },
     });
-    console.log(newAppointment)
-    
 
-    return new NextResponse(
-      JSON.stringify({ message: "Appointment is Added", appointment: newAppointment }),
+    console.log(patient.phone);
+
+    return NextResponse.json(
+      { message: "Appointment added successfully", appointment: newAppointment },
       { status: 200 }
     );
   } catch (error) {
-    return new NextResponse(
-      JSON.stringify({
-        message: "Error in adding Appointment",
-        error,
-      }),
-      {
-        status: 500,
-      }
-    );
+    if (error instanceof Error) {
+      console.error("Error in adding appointment:", error.message);
+      return NextResponse.json(
+        { message: "Error in adding Appointment", error: error.message },
+        { status: 500 }
+      );
+    } else {
+      console.error("Unknown error in adding appointment:", error);
+      return NextResponse.json(
+        { message: "Unknown error in adding Appointment" },
+        { status: 500 }
+      );
+    }
   }
 }
-
-// export const GET = async () => {
-//   try {
-//     const appointments = await prisma.appointment.findMany();
-//     return new NextResponse(JSON.stringify(appointments), { status: 200 });
-//   } catch (error) {
-//     return new NextResponse("Error in fetching appointments: " + error, {
-//       status: 500,
-//     });
-//   }
-// };
-
-
-
 
 export async function GET() {
   try {
@@ -95,11 +58,11 @@ export async function GET() {
           select: {
             firstName: true,
             lastName: true,
+            phone: true,
           },
         },
         doctor: {
           select: {
-            
             fullName: true,
             specialization: true,
           },
@@ -109,13 +72,18 @@ export async function GET() {
 
     return NextResponse.json(appointments, { status: 200 });
   } catch (error) {
-    console.error("Error in fetching appointments:", error);
-    return new NextResponse(
-      JSON.stringify({ message: "Error in fetching appointments", error }),
-      { status: 500 }
-    );
+    if (error instanceof Error) {
+      console.error("Error in fetching appointments:", error.message);
+      return NextResponse.json(
+        { message: "Error in fetching appointments", error: error.message },
+        { status: 500 }
+      );
+    } else {
+      console.error("Unknown error in fetching appointments:", error);
+      return NextResponse.json(
+        { message: "Unknown error in fetching appointments" },
+        { status: 500 }
+      );
+    }
   }
 }
-
-
-
