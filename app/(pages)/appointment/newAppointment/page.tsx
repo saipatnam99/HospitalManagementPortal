@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import Navbar from "@/components/navbar/page";
 import Sidebar from "@/components/sidebar/page";
+import Breadcrumbs from "@/components/breadCrumbs/page"; // Import Breadcrumbs
 
 const sidebarItems = [
   { href: "/dashboard", label: "Dashboard" },
@@ -58,12 +59,12 @@ const AddAppointmentForm = () => {
       try {
         const patientResponse = await axios.get(`/api/patients/${patientId}`);
         setPatientDetails(patientResponse.data);
-        setFormData(prevFormData => ({ ...prevFormData, patientId: patientId || "" }));
+        setFormData((prevFormData) => ({ ...prevFormData, patientId: patientId || "" }));
       } catch (error) {
         console.error("Error fetching patient data:", error);
       }
     };
-  
+
     const fetchDoctors = async () => {
       try {
         const response = await axios.get(`/api/doctors`);
@@ -73,13 +74,12 @@ const AddAppointmentForm = () => {
         console.error("Error fetching doctors:", error);
       }
     };
-  
+
     if (patientId) {
       fetchPatientData();
       fetchDoctors();
     }
   }, [patientId]);
-  
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -103,26 +103,31 @@ const AddAppointmentForm = () => {
     }
   };
 
+  // Breadcrumb items
+  const breadcrumbItems = [
+   
+    { label: "Home", href: "/dashboard" },
+    { label: "Appointments", href: "/appointment" },
+    {label : "Add Appointment", href: "/newAppointment"}
+  ];
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+      <Breadcrumbs items={breadcrumbItems} separator=">>" />
       <div className="bg-gray-100 flex flex-row">
         <Sidebar sidebarItems={sidebarItems} />
 
         <div className="max-w-lg mx-auto mt-10">
           <h1 className="text-2xl font-bold mb-5">Add Appointment</h1>
           <div className="mb-4">
-            <label
-              htmlFor="patientDetails"
-              className="block text-sm font-medium"
-            >
+            <label htmlFor="patientDetails" className="block text-sm font-medium">
               Patient Details
             </label>
             {patientDetails ? (
               <div className="space-y-2">
                 <p>
-                  <strong>Name:</strong> {patientDetails.firstName}{" "}
-                  {patientDetails.lastName}
+                  <strong>Name:</strong> {patientDetails.firstName} {patientDetails.lastName}
                 </p>
                 <p>
                   <strong>Email:</strong> {patientDetails.email}

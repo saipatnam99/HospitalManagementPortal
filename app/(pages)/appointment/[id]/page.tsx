@@ -4,6 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import Navbar from "@/components/navbar/page";
 import Sidebar from "@/components/sidebar/page";
+import Breadcrumbs from "@/components/breadCrumbs/page";
 
 const sidebarItems = [
   { href: '/dashboard', label: 'Dashboard' },
@@ -52,6 +53,13 @@ const EditAppointmentForm = () => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { id } = useParams(); // Use useParams to get the id from the URL
+
+  const breadcrumbItems = [
+   
+    { label: "Home", href: "/dashboard" },
+    { label: "Appointments", href: "/appointment" },
+    {label : "Edit Appointment", href: "/appointment"}
+  ];
 
   useEffect(() => {
     const fetchAppointmentData = async () => {
@@ -116,6 +124,8 @@ const EditAppointmentForm = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+      <Breadcrumbs items={breadcrumbItems} separator=">>" />
+
       <div className="bg-gray-100 flex flex-row">
         <Sidebar sidebarItems={sidebarItems} />
 

@@ -6,6 +6,7 @@ import Navbar from "@/components/navbar/page";
 import Sidebar from "@/components/sidebar/page";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";  // Import the CSS for the phone input
+import Breadcrumbs from "@/components/breadCrumbs/page";
 
 const sidebarItems = [
   { href: '/dashboard', label: 'Dashboard' },
@@ -53,6 +54,14 @@ export default function AddPatientForm() {
   const handlePhoneChange = (value: string) => {
     setFormData({ ...formData, phone: value });
   };
+
+  const breadcrumbItems = [
+   
+    { label: "Home", href: "/dashboard" },
+    { label: "Patients", href: "/patients" },
+    {label : " Add Patient", href: "/addPatient"}
+  ];
+  
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -145,6 +154,7 @@ export default function AddPatientForm() {
   return (
     <div className="min-h-screen flex flex-col">
     <Navbar />
+    <Breadcrumbs items={breadcrumbItems} separator=">>"/>
     <div className="bg-gray-100 flex flex-row">
       <Sidebar sidebarItems={sidebarItems} />
     

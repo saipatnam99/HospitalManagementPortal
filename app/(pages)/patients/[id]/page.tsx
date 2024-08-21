@@ -4,9 +4,10 @@ import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Navbar from "@/components/navbar/page";
 import Sidebar from "@/components/sidebar/page";
+import Breadcrumbs from "@/components/breadCrumbs/page";
 
 const sidebarItems = [
-  { href: '/dashboard', label: 'Dashboard' },
+  { href: "/dashboard", label: "Dashboard" },
   { href: "/doctors", label: "Doctors" },
   { href: "/patients", label: "Patients", active: true },
   { href: "/appointments", label: "Appointments" },
@@ -61,6 +62,11 @@ const EditPatientForm = () => {
 
   const router = useRouter();
   const { id } = useParams(); // Use useParams to get the id from the URL
+  const breadcrumbItems = [
+    { label: "Home", href: "/dashboard" },
+    { label: "Patients", href: "/patients" },
+    { label: " Edit Patient", href: "/patients" },
+  ];
 
   useEffect(() => {
     const fetchPatientData = async () => {
@@ -110,6 +116,7 @@ const EditPatientForm = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+      <Breadcrumbs items={breadcrumbItems} separator=">>"/>
       <div className="bg-gray-100 flex flex-row">
         <Sidebar sidebarItems={sidebarItems} />
 
@@ -118,7 +125,10 @@ const EditPatientForm = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="flex flex-2 flex-row">
               <div className="mr-2">
-                <label htmlFor="firstName" className="block text-sm font-medium">
+                <label
+                  htmlFor="firstName"
+                  className="block text-sm font-medium"
+                >
                   First Name
                 </label>
                 <input
@@ -160,7 +170,10 @@ const EditPatientForm = () => {
             </div>
 
             <div>
-              <label htmlFor="dateOfBirth" className="block text-sm font-medium">
+              <label
+                htmlFor="dateOfBirth"
+                className="block text-sm font-medium"
+              >
                 Date of Birth
               </label>
               <input
@@ -233,7 +246,10 @@ const EditPatientForm = () => {
             </div>
 
             <div>
-              <label htmlFor="addressLine2" className="block text-sm font-medium">
+              <label
+                htmlFor="addressLine2"
+                className="block text-sm font-medium"
+              >
                 Address Line 2
               </label>
               <input

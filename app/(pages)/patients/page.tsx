@@ -7,6 +7,7 @@ import DataTable from "@/components/dataTable/page";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
+import Breadcrumbs from "@/components/breadCrumbs/page";
 
 interface SidebarItem {
   href: string;
@@ -76,6 +77,13 @@ export default function Patients() {
 
     fetchPatients();
   }, []);
+  const breadcrumbItems = [
+   
+    { label: "Home", href: "/dashboard" },
+    { label: "Patients", href: "/patients" },
+    {label : "Patients List", href: "/patients"}
+  ];
+
 
   const columns = [
     { header: () => "First Name", accessorKey: "firstName" },
@@ -163,6 +171,7 @@ export default function Patients() {
   return (
     <div className="flex flex-col">
          <Navbar />
+         <Breadcrumbs items={breadcrumbItems} separator=">>"/>
       <div className=" flex flex-row">
    
         <Sidebar sidebarItems={sidebarItems} />

@@ -7,6 +7,7 @@ import Link from "next/link";
 import Swal from "sweetalert2";
 import Navbar from "@/components/navbar/page";
 import Sidebar from "@/components/sidebar/page";
+import Breadcrumbs from "@/components/breadCrumbs/page";
 
 interface SidebarItem {
   href: string;
@@ -47,6 +48,12 @@ export default function Appointments() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const router=useRouter()
+  const breadcrumbItems = [
+   
+    { label: "Home", href: "/dashboard" },
+    { label: "Appointments", href: "/appointment" },
+    {label : "Appoinment list", href: "/appoinment"}
+  ];
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -168,6 +175,7 @@ export default function Appointments() {
       <Sidebar sidebarItems={sidebarItems} />
       <div className="flex-1 flex flex-col">
         <Navbar />
+        <Breadcrumbs items={breadcrumbItems} />
         <div className="p-4">
           <div className="flex justify-between mb-4">
             <h1 className="text-2xl font-semibold">Appointments</h1>
