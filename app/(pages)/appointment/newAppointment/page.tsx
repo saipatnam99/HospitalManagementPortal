@@ -52,6 +52,7 @@ const AddAppointmentForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const patientId = searchParams.get("patientId");
+   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchPatientData = async () => {
@@ -89,25 +90,73 @@ const AddAppointmentForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     try {
       const newAppointment = {
         ...formData,
-        date: new Date(formData.date),
+        date: new Date(formData.date).toLocaleDateString(),
       };
-      console.log(newAppointment);
+  
+      // Save the new appointment to your database
       await axios.post("/api/appointments", newAppointment);
+  
+      // List of phone numbers to send SMS
+      const phoneNumbers = [
+        patientDetails?.phone,  // Patient's phone number
+        // Add more phone numbers if needed
+      ].filter(Boolean); // Filter out any undefined values
+  
+      if (phoneNumbers.length === 0) {
+        throw new Error('No phone numbers available to send SMS.');
+      }
+  
+      // Send SMS using the Next.js API route
+      const smsPayload = {
+        phoneNumbers, // Array of phone numbers
+        message: `Your appointment is scheduled on ${newAppointment.date} at ${newAppointment.time}.`,
+      };
+  
+      await axios.post("/api/sendSms", smsPayload);
+  
+      // Redirect after successful submission
       router.push("/appointment");
     } catch (error) {
-      console.error("Error creating appointment:", error);
+      if (error instanceof Error) {
+        console.error("Error creating appointment or sending SMS:", error.message);
+      } else {
+        console.error("Unknown error:", error);
+      }
     }
   };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+  
+  
+  
+  
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <div className="bg-gray-100 flex flex-row">
-        <Sidebar sidebarItems={sidebarItems} />
+      <div className="bg-gray-100 flex flex-1 flex-row">
+        {/* Toggle Button for Sidebar */}
+        <button
+          className="md:hidden p-2 text-white bg-blue-600"
+          onClick={toggleSidebar}
+        >
+          {isSidebarOpen ? "Close Menu" : "Menu"}
+        </button>
+
+        {/* Sidebar component */}
+        <div
+          className={`${
+            isSidebarOpen ? "block" : "hidden"
+          } md:block md:w-64 h-full bg-white shadow-lg`}
+        >
+          <Sidebar sidebarItems={sidebarItems} />
+        </div>
 
         <div className="max-w-lg mx-auto mt-10">
           <h1 className="text-2xl font-bold mb-5">Add Appointment</h1>

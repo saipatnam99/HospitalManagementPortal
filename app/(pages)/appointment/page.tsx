@@ -46,6 +46,7 @@ interface Appointment {
 export default function Appointments() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router=useRouter()
 
   useEffect(() => {
@@ -161,14 +162,33 @@ export default function Appointments() {
     });
   };
 
+   const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
 
 
   return (
-    <div className="flex">
-      <Sidebar sidebarItems={sidebarItems} />
-      <div className="flex-1 flex flex-col">
-        <Navbar />
-        <div className="p-4">
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <div className="bg-gray-100 flex flex-1 flex-row">
+        {/* Toggle Button for Sidebar */}
+        <button
+          className="md:hidden p-2 text-white bg-blue-600"
+          onClick={toggleSidebar}
+        >
+          {isSidebarOpen ? "Close Menu" : "Menu"}
+        </button>
+
+        {/* Sidebar component */}
+        <div
+          className={`${
+            isSidebarOpen ? "block" : "hidden"
+          } md:block md:w-64 h-full bg-white shadow-lg`}
+        >
+          <Sidebar sidebarItems={sidebarItems} />
+        </div>
+        <div className="flex-1 p-4 overflow-x-auto">
           <div className="flex justify-between mb-4">
             <h1 className="text-2xl font-semibold">Appointments</h1>
             {/* <button className="px-4 py-2 bg-green-500 text-white rounded">

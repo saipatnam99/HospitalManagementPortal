@@ -1,27 +1,44 @@
-// utils/sendSms.ts
-import twilio from 'twilio';
+import { NextApiRequest, NextApiResponse } from 'next';
+import axios from 'axios';
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID!;
-const authToken = process.env.TWILIO_AUTH_TOKEN!;
-const client = twilio(accountSid, authToken);
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Only POST requests allowed' });
+  }
 
-export const sendSms = async (to: string, message: string) => {
+  const { date, time, phoneNumbers } = req.body;
+
   try {
-    if (!to) {
-      throw new Error('The "to" phone number is required');
+    if (!Array.isArray(phoneNumbers) || phoneNumbers.length === 0) {
+      throw new Error('phoneNumbers must be a non-empty array');
     }
 
-    console.log('Sending SMS to:', to); // Log the recipient's phone number
-    console.log('Message:', message); // Log the message content
+    const apiKey = '6d034298'; // Replace with your Vonage API Key
+    const apiSecret = 'pXwzNNJANz0vVfru'; // Replace with your Vonage API Secret
+    const fromNumber = '7032596476'; // Replace with your Vonage phone number
 
-    const response = await client.messages.create({
-      body: message,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to,
-    });
+    const smsPromises = phoneNumbers.map(phoneNumber =>
+      axios.post('https://rest.nexmo.com/sms/json', null, {
+        params: {
+          api_key: apiKey,
+          api_secret: apiSecret,
+          to: phoneNumber,
+          from: fromNumber,
+          text: `Your appointment is scheduled on ${date} at ${time}.`,
+        },
+      })
+    );
 
-    console.log('SMS sent successfully:', response.sid);
-  } catch (error) {
-    console.error('Error sending SMS:', error);
+    const smsResponses = await Promise.all(smsPromises);
+
+    const failedMessages = smsResponses.filter(response => response.data.messages[0].status !== '0');
+
+    if (failedMessages.length) {
+      throw new Error('Some messages failed to send');
+    }
+
+    res.status(200).json({ message: 'Messages sent successfully' });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
   }
-};
+}
