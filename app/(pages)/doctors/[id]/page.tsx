@@ -69,7 +69,7 @@ const EditDoctorForm = () => {
   const breadcrumbItems = [
     { label: "Home", href: "/dashboard" },
     { label: "Doctors", href: "/doctors" },
-    { label: "Edit Doctor", href: `/doctors/edit/${id}` },
+    { label: "Edit Doctor", href: `/doctors/${id}` },
   ];
 
   useEffect(() => {

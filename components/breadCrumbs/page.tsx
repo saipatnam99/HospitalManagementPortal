@@ -15,7 +15,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, separator = ">>" }) =>
   return (
     <nav
       aria-label="breadcrumbs"
-      className="bg-blue-700 text-white text-sm py-2 px-4 rounded-md"
+      className="bg-blue-700 text-white text-sm py-2 px-4 rounded-sm"
     >
       <ol className="flex items-center space-x-2">
         {items.map((item, index) => {

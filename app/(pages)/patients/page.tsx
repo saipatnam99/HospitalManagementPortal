@@ -59,6 +59,7 @@ export default function Patients() {
   // const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router=useRouter()
 
   useEffect(() => {
@@ -81,7 +82,7 @@ export default function Patients() {
    
     { label: "Home", href: "/dashboard" },
     { label: "Patients", href: "/patients" },
-    {label : "Patients List", href: "/patients"}
+    {label : "Patients List", href: "/patient"}
   ];
 
 
@@ -168,14 +169,32 @@ export default function Patients() {
     });
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
-    <div className="flex flex-col">
-         <Navbar />
-         <Breadcrumbs items={breadcrumbItems} separator=">>"/>
-      <div className=" flex flex-row">
-   
-        <Sidebar sidebarItems={sidebarItems} />
-        <div className="p-4">
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <Breadcrumbs items={breadcrumbItems}/>
+      <div className="bg-gray-100 flex flex-1 flex-row">
+        {/* Toggle Button for Sidebar */}
+        <button
+          className="md:hidden p-2 text-white bg-blue-600"
+          onClick={toggleSidebar}
+        >
+          {isSidebarOpen ? "Close Menu" : "Menu"}
+        </button>
+
+        {/* Sidebar component */}
+        <div
+          className={`${
+            isSidebarOpen ? "block" : "hidden"
+          } md:block md:w-64 h-full bg-white shadow-lg`}
+        >
+          <Sidebar sidebarItems={sidebarItems} />
+        </div>
+        <div className="flex-1 p-4 overflow-x-auto">
           <div className="flex justify-between mb-4">
             <h1 className="text-2xl font-semibold">Patients</h1>
             <button className="px-4 py-2 bg-green-500 text-white rounded">
@@ -186,6 +205,6 @@ export default function Patients() {
           <DataTable data={patients} columns={columns} isLoading={isLoading} />
         </div>
       </div>
-    </div>
+      </div>
   );
 }

@@ -69,6 +69,12 @@ export default function AddDoctorForm() {
     const [doctors, setDoctors] = useState<Doctor[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const router= useRouter()
+    const breadcrumbItems = [
+   
+      { label: "Home", href: "/dashboard" },
+      { label: "Doctors", href: "/doctors" },
+      {label : "Add Doctor", href: "/addDoctor"}
+    ];
     
         const [newDoctor, setNewDoctor] = useState<Doctor>({
           fullName: "",
