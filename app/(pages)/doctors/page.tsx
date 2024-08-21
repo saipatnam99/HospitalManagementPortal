@@ -5,6 +5,7 @@ import Sidebar from "@/components/sidebar/page";
 import Navbar from "@/components/navbar/page";
 import DataTable from "@/components/dataTable/page";
 import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 import PhoneInput from "react-phone-input-2";
 //import Loader from "@/components/loader/page";
 
@@ -13,6 +14,33 @@ interface SidebarItem {
   label: string;
   active?: boolean;
 }
+
+
+
+// Specialization options
+const specializations = [
+"Cardiology",
+"Dermatology",
+"Emergency Medicine",
+"Endocrinology",
+"Family Medicine",
+"Gastroenterology",
+"General Surgery",
+"Geriatrics",
+"Hematology",
+"Internal Medicine",
+"Neurology",
+"Obstetrics and Gynecology",
+"Oncology",
+"Ophthalmology",
+"Orthopedic Surgery",
+"Pediatrics",
+"Psychiatry",
+"Pulmonology",
+"Radiology",
+"Rheumatology",
+"Urology"
+];
 
 const sidebarItems: SidebarItem[] = [
   { href: "/dashboard", label: "Dashboard" },
@@ -42,11 +70,11 @@ interface EditDoctorFormProps {
 }
 
 export default function Doctors() {
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
+ 
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const router=useRouter()
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -97,7 +125,8 @@ export default function Doctors() {
   const handleEdit = (doctorId: string) => {
     const doctorToEdit = doctors.find((doctor) => doctor.id === doctorId);
     setSelectedDoctor(doctorToEdit || null);
-    setShowEditModal(true);
+    router.push(`/doctors/${doctorId}`)
+   
   };
 
   const handleDelete = async (doctorId: string) => {
@@ -127,373 +156,9 @@ export default function Doctors() {
     });
   };
 
-  const AddDoctorForm = () => {
-    const [newDoctor, setNewDoctor] = useState<Doctor>({
-      fullName: "",
-      email: "",
-      phone: "",
-      address: "",
-      experience: 0,
-      specialization: "",
-    });
 
-    const handleChange = (
-      e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-    ) => {
-      const { name, value } = e.target;
-      setNewDoctor((prev) => ({ ...prev, [name]: value }));
-    };
 
-    const handlePhoneChange = (value: string) => {
-      setNewDoctor({ ...newDoctor, phone: value });
-    };
   
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      const formattedPhoneNumber = `+${newDoctor.phone}`;
-
-      const modifiedDoctor = {
-        ...newDoctor,
-        phone:formattedPhoneNumber,
-        experience: Number(newDoctor.experience),
-      };
-      setIsLoading(true);
-      console.log(modifiedDoctor)
-      try {
-        // console.log(response.data)
-        const response = await axios.post("/api/doctors", modifiedDoctor);
-        console.log(response.data)
-        const newModifiedDoctor = response.data.doctor;
-        setDoctors((prevDoctors) => [...prevDoctors, newModifiedDoctor]);
-       
-        setNewDoctor({
-          fullName: "",
-          email: "",
-          phone: "",
-          address: "",
-          experience: 0,
-          specialization: "",
-        })
-        setShowAddModal(false);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error adding doctor:", error);
-        setIsLoading(false);
-      }
-    };
-
-    return (
-      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
-        <div className="bg-white p-8 rounded shadow-md w-full max-w-3xl min-h-[500px]">
-          <h2 className="text-xl mb-6">Add New Doctor</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4 flex space-x-4">
-              <div className="flex-1">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="fullName"
-                >
-                  Full Name
-                </label>
-                <input
-                  id="fullName"
-                  name="fullName"
-                  type="text"
-                  value={newDoctor.fullName}
-                  onChange={handleChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
-              </div>
-              <div className="flex-1">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="email"
-                >
-                  Email
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={newDoctor.email}
-                  onChange={handleChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
-              </div>
-            </div>
-            <div className="mb-4 flex space-x-4">
-              <div className="flex-1">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="phone"
-                >
-                  Phone
-                </label>
-                <PhoneInput
-                country={"in"} // Set default country
-                value={newDoctor.phone}
-                onChange={handlePhoneChange}
-                inputClass="w-full mt-1 p-2 border rounded-md"
-                containerClass="w-full"
-                inputProps={{
-                  name: "phone",
-                  required: true,
-                  autoFocus: true,
-                }}
-              />
-                {/* <input
-                  id="phone"
-                  name="phone"
-                  type="text"
-                  value={newDoctor.phone}
-                  onChange={handleChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                /> */}
-              </div>
-              <div className="flex-1">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="address"
-                >
-                  Address
-                </label>
-                <input
-                  id="address"
-                  name="address"
-                  type="text"
-                  value={newDoctor.address}
-                  onChange={handleChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
-              </div>
-            </div>
-            <div className="mb-4 flex space-x-4">
-              <div className="flex-1">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="experience"
-                >
-                  Experience (Years)
-                </label>
-                <input
-                  id="experience"
-                  name="experience"
-                  type="number"
-                  value={newDoctor.experience}
-                  onChange={handleChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
-              </div>
-              <div className="flex-1">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="specialization"
-                >
-                  Specialization
-                </label>
-                <input
-                  id="specialization"
-                  name="specialization"
-                  type="text"
-                  value={newDoctor.specialization}
-                  onChange={handleChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
-              </div>
-            </div>
-            <div className="flex justify-end space-x-4">
-              <button
-                type="button"
-                onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 bg-gray-500 text-white rounded"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-green-500 text-white rounded"
-              >
-                Add Doctor
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  };
-
-  const EditDoctorForm = ({ doctor }: EditDoctorFormProps) => {
-    const [updatedDoctor, setUpdatedDoctor] = useState<Doctor>(
-      doctor || {
-        fullName: "",
-        email: "",
-        phone: "",
-        address: "",
-        experience: 0,
-        specialization: "",
-      }
-    );
-    if (!updatedDoctor) return null;
-
-    const handleChange = (
-      e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-    ) => {
-      const { name, value } = e.target;
-      setUpdatedDoctor((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-
-     const  newUpdatedDoctor= {
-            ...updatedDoctor,
-            experience: Number(updatedDoctor.experience)
-      }
-      setIsLoading(true);
-      try {
-       const response= await axios.patch(`/api/doctors/${updatedDoctor.id}`, newUpdatedDoctor);
-       console.log(response.data)
-       const updatedDoctorData =response.data.updatedDoctor;
-        setDoctors((prevDoctors) =>
-          prevDoctors.map((doc) =>
-            doc.id === updatedDoctor.id ? updatedDoctorData : doc
-          )
-        );
-        setShowEditModal(false);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error updating doctor:", error);
-        setIsLoading(false);
-      }
-    };
-
-    return (
-      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
-        <div className="bg-white p-8 rounded shadow-md w-full max-w-3xl min-h-[500px]">
-          <h2 className="text-xl mb-6">Edit Doctor</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4 flex space-x-4">
-              <div className="flex-1">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="fullName"
-                >
-                  Full Name
-                </label>
-                <input
-                  id="fullName"
-                  name="fullName"
-                  type="text"
-                  value={updatedDoctor.fullName}
-                  onChange={handleChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
-              </div>
-              <div className="flex-1">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="email"
-                >
-                  Email
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={updatedDoctor.email}
-                  onChange={handleChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
-              </div>
-            </div>
-            <div className="mb-4 flex space-x-4">
-              <div className="flex-1">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="phone"
-                >
-                  Phone
-                </label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="text"
-                  value={updatedDoctor.phone}
-                  onChange={handleChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
-              </div>
-              <div className="flex-1">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="address"
-                >
-                  Address
-                </label>
-                <input
-                  id="address"
-                  name="address"
-                  type="text"
-                  value={updatedDoctor.address}
-                  onChange={handleChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
-              </div>
-            </div>
-            <div className="mb-4 flex space-x-4">
-              <div className="flex-1">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="experience"
-                >
-                  Experience (Years)
-                </label>
-                <input
-                  id="experience"
-                  name="experience"
-                  type="number"
-                  value={updatedDoctor.experience}
-                  onChange={handleChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
-              </div>
-              <div className="flex-1">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="specialization"
-                >
-                  Specialization
-                </label>
-                <input
-                  id="specialization"
-                  name="specialization"
-                  type="text"
-                  value={updatedDoctor.specialization}
-                  onChange={handleChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
-              </div>
-            </div>
-            <div className="flex justify-end space-x-4">
-              <button
-                type="button"
-                onClick={() => setShowEditModal(false)}
-                className="px-4 py-2 bg-gray-500 text-white rounded"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-green-500 text-white rounded"
-              >
-                Save Changes
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="flex">
@@ -505,7 +170,7 @@ export default function Doctors() {
             <h1 className="text-2xl font-semibold">Doctors</h1>
             <button
               className="px-4 py-2 bg-green-500 text-white rounded"
-              onClick={() => setShowAddModal(true)}
+              onClick={() =>router.push("/doctors/addDoctor") }
             >
               Add Doctor
             </button>
@@ -514,8 +179,7 @@ export default function Doctors() {
           <DataTable data={doctors} columns={columns} isLoading={undefined} />
         </div>
       </div>
-      {showAddModal && <AddDoctorForm />}
-      {showEditModal && <EditDoctorForm doctor={selectedDoctor} />}
+      
     </div>
   );
 }
