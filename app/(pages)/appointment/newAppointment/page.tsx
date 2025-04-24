@@ -49,22 +49,23 @@ const AddAppointmentForm = () => {
   const [patientDetails, setPatientDetails] = useState<Patient | null>(null);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const patientId = searchParams.get("patientId");
-   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchPatientData = async () => {
       try {
         const patientResponse = await axios.get(`/api/patients/${patientId}`);
         setPatientDetails(patientResponse.data);
-        setFormData(prevFormData => ({ ...prevFormData, patientId: patientId || "" }));
+        setFormData((prev) => ({ ...prev, patientId: patientId || "" }));
       } catch (error) {
         console.error("Error fetching patient data:", error);
       }
     };
-  
+
     const fetchDoctors = async () => {
       try {
         const response = await axios.get(`/api/doctors`);
@@ -74,13 +75,12 @@ const AddAppointmentForm = () => {
         console.error("Error fetching doctors:", error);
       }
     };
-  
+
     if (patientId) {
       fetchPatientData();
       fetchDoctors();
     }
   }, [patientId]);
-  
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -90,35 +90,27 @@ const AddAppointmentForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     try {
       const newAppointment = {
         ...formData,
-        date: new Date(formData.date).toLocaleDateString(),
+        date: new Date(formData.date), // ✅ Ensure valid Date format
       };
-  
-      // Save the new appointment to your database
+
       await axios.post("/api/appointments", newAppointment);
-  
-      // List of phone numbers to send SMS
-      const phoneNumbers = [
-        patientDetails?.phone,  // Patient's phone number
-        // Add more phone numbers if needed
-      ].filter(Boolean); // Filter out any undefined values
-  
+
+      const phoneNumbers = [patientDetails?.phone].filter(Boolean);
+
       if (phoneNumbers.length === 0) {
-        throw new Error('No phone numbers available to send SMS.');
+        throw new Error("No phone numbers available to send SMS.");
       }
-  
-      // Send SMS using the Next.js API route
-      const smsPayload = {
-        phoneNumbers, // Array of phone numbers
-        message: `Your appointment is scheduled on ${newAppointment.date} at ${newAppointment.time}.`,
-      };
-  
-      await axios.post("/api/sendSms", smsPayload);
-  
-      // Redirect after successful submission
+
+      // Optional: Uncomment when SMS API is ready
+      // await axios.post("/api/sendSms", {
+      //   phoneNumbers,
+      //   message: `Your appointment is scheduled on ${formData.date} at ${formData.time}.`,
+      // });
+
       router.push("/appointment");
     } catch (error) {
       if (error instanceof Error) {
@@ -132,16 +124,12 @@ const AddAppointmentForm = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-  
-  
-  
-  
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <div className="bg-gray-100 flex flex-1 flex-row">
-        {/* Toggle Button for Sidebar */}
+        {/* Sidebar Toggle Button */}
         <button
           className="md:hidden p-2 text-white bg-blue-600"
           onClick={toggleSidebar}
@@ -149,7 +137,7 @@ const AddAppointmentForm = () => {
           {isSidebarOpen ? "Close Menu" : "Menu"}
         </button>
 
-        {/* Sidebar component */}
+        {/* Sidebar */}
         <div
           className={`${
             isSidebarOpen ? "block" : "hidden"
@@ -158,8 +146,10 @@ const AddAppointmentForm = () => {
           <Sidebar sidebarItems={sidebarItems} />
         </div>
 
+        {/* Main Form */}
         <div className="max-w-lg mx-auto mt-10">
           <h1 className="text-2xl font-bold mb-5">Add Appointment</h1>
+
           <div className="mb-4">
             <label
               htmlFor="patientDetails"
@@ -184,8 +174,9 @@ const AddAppointmentForm = () => {
               <p>Loading...</p>
             )}
           </div>
+
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="mb-4">
+            <div>
               <label htmlFor="doctorId" className="block text-sm font-medium">
                 Select Doctor
               </label>
@@ -205,7 +196,7 @@ const AddAppointmentForm = () => {
               </select>
             </div>
 
-            <div className="mb-4">
+            <div>
               <label htmlFor="date" className="block text-sm font-medium">
                 Date
               </label>
@@ -219,7 +210,7 @@ const AddAppointmentForm = () => {
               />
             </div>
 
-            <div className="mb-4">
+            <div>
               <label htmlFor="time" className="block text-sm font-medium">
                 Time
               </label>
