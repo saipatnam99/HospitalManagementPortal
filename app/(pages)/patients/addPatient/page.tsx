@@ -238,6 +238,8 @@ export default function AddPatientForm() {
                     />
                   </div>
                 </div>
+
+                
               </div>
 
               <div>

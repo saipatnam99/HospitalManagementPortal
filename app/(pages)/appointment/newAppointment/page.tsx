@@ -105,11 +105,11 @@ const AddAppointmentForm = () => {
         throw new Error("No phone numbers available to send SMS.");
       }
 
-      // Optional: Uncomment when SMS API is ready
-      // await axios.post("/api/sendSms", {
-      //   phoneNumbers,
-      //   message: `Your appointment is scheduled on ${formData.date} at ${formData.time}.`,
-      // });
+      
+      await axios.post("/api/sendSms", {
+        phoneNumbers,
+        message: `Your appointment is scheduled on ${formData.date} at ${formData.time}.`,
+      });
 
       router.push("/appointment");
     } catch (error) {
