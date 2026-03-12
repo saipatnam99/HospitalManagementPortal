@@ -67,7 +67,7 @@
 // // export { handler as GET, handler as POST };
 
 // export { handler as GET, handler as POST };
-
+import { prisma } from "@/lib/prisma";
 import NextAuth from "next-auth";
 import { authOptions } from "@/lib/auth";
 
