@@ -50,6 +50,44 @@ export async function POST(req: Request) {
   }
 }
 
+// export async function GET() {
+//   try {
+//     const appointments = await prisma.appointment.findMany({
+//       include: {
+//         patient: {
+//           select: {
+//             firstName: true,
+//             lastName: true,
+//             phone: true,
+//           },
+//         },
+//         doctor: {
+//           select: {
+//             fullName: true,
+//             specialization: true,
+//           },
+//         },
+//       },
+//     });
+
+//     return NextResponse.json(appointments, { status: 200 });
+//   } catch (error) {
+//     if (error instanceof Error) {
+//       console.error("Error in fetching appointments:", error.message);
+//       return NextResponse.json(
+//         { message: "Error in fetching appointments", error: error.message },
+//         { status: 500 }
+//       );
+//     } else {
+//       console.error("Unknown error in fetching appointments:", error);
+//       return NextResponse.json(
+//         { message: "Unknown error in fetching appointments" },
+//         { status: 500 }
+//       );
+//     }
+//   }
+// }
+
 export async function GET() {
   try {
     const appointments = await prisma.appointment.findMany({
@@ -68,22 +106,34 @@ export async function GET() {
           },
         },
       },
+      orderBy: {
+        date: "desc",
+      },
     });
 
-    return NextResponse.json(appointments, { status: 200 });
+    // ✅ Transform data for frontend
+    const formattedAppointments = appointments.map((appt) => ({
+      id: appt.id,
+
+      patientName: `${appt.patient.firstName} ${appt.patient.lastName}`,
+      doctorName: appt.doctor.fullName,
+
+      date: appt.date,
+      time: appt.time,
+
+      // ✅ formatted datetime
+      dateTime: new Date(appt.date).toLocaleString("en-IN", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }),
+
+      specialization: appt.doctor.specialization,
+      phone: appt.patient.phone,
+    }));
+
+    return NextResponse.json(formattedAppointments, { status: 200 });
   } catch (error) {
-    if (error instanceof Error) {
-      console.error("Error in fetching appointments:", error.message);
-      return NextResponse.json(
-        { message: "Error in fetching appointments", error: error.message },
-        { status: 500 }
-      );
-    } else {
-      console.error("Unknown error in fetching appointments:", error);
-      return NextResponse.json(
-        { message: "Unknown error in fetching appointments" },
-        { status: 500 }
-      );
-    }
+    console.error("Error fetching appointments:", error);
+    return NextResponse.json([], { status: 500 });
   }
 }

@@ -17,7 +17,7 @@ export const GET = async (request: Request, context: { params: any }) => {
       }); 
       return new NextResponse(JSON.stringify(patient), { status: 200 });
     } catch (error) {
-      return new NextResponse("Error in fetching doctor" + error, {
+      return new NextResponse("Error in fetching Patient" + error, {
         status: 500,
       });
     }
@@ -43,7 +43,7 @@ export const PATCH = async (request: Request, context: { params: any }) => {
   
       if (!id) {
         return new NextResponse(
-          JSON.stringify({ message: "Invalid Offer ID" }),
+          JSON.stringify({ message: "Invalid Patient ID" }),
           {
             status: 400,
           }
@@ -51,7 +51,7 @@ export const PATCH = async (request: Request, context: { params: any }) => {
       }
   
       if (!Types.ObjectId.isValid(id)) {
-        return new NextResponse(JSON.stringify({ message: "Invalid offerId"}), {
+        return new NextResponse(JSON.stringify({ message: "Invalid Patient ID"}), {
           status: 400,
         });
       }
@@ -69,7 +69,7 @@ export const PATCH = async (request: Request, context: { params: any }) => {
       if (!updatedPatient) {
         return new NextResponse(
           JSON.stringify({
-            message: "Offer not found or didn't update Offer Successfully.",
+            message: "Patient not found or didn't update Patient Successfully.",
           }),
           {
             status: 400,

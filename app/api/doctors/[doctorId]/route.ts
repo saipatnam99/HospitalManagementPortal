@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 // const prisma = new PrismaClient()
 
 
-// get offer
+// get Doctor
 export const GET = async (request: Request, context: { params: any }) => {
     const doctorId = context.params.doctorId;
     try {
@@ -40,7 +40,7 @@ export const PATCH = async (request: Request, context: { params: any }) => {
   
       if (!doctorId) {
         return new NextResponse(
-          JSON.stringify({ message: "Invalid Offer ID" }),
+          JSON.stringify({ message: "Invalid Doctor  ID" }),
           {
             status: 400,
           }
@@ -48,7 +48,7 @@ export const PATCH = async (request: Request, context: { params: any }) => {
       }
   
       if (!Types.ObjectId.isValid(doctorId)) {
-        return new NextResponse(JSON.stringify({ message: "Invalid offerId"}), {
+        return new NextResponse(JSON.stringify({ message: "Invalid doctorId"}), {
           status: 400,
         });
       }
@@ -63,7 +63,7 @@ export const PATCH = async (request: Request, context: { params: any }) => {
       if (!updatedDoctor) {
         return new NextResponse(
           JSON.stringify({
-            message: "Offer not found or didn't update Offer Successfully.",
+            message: "Doctor not found or didn't update Doctor Successfully.",
           }),
           {
             status: 400,
@@ -74,7 +74,7 @@ export const PATCH = async (request: Request, context: { params: any }) => {
       // Return a success response
       return new NextResponse(
         JSON.stringify({
-          message: "Offer Updated Successfully",
+          message: "Doctor Updated Successfully",
           updatedDoctor
         }),
         {
@@ -84,7 +84,7 @@ export const PATCH = async (request: Request, context: { params: any }) => {
     } catch (error) {
       return new NextResponse(
         JSON.stringify({
-          message: "Error updating Offer",
+          message: "Error updating Doctor",
           error,
         }),
         {
@@ -100,7 +100,7 @@ export const DELETE = async (request: Request, context: { params: any }) => {
   const doctorId = context.params.doctorId;
   try {
     if (!Types.ObjectId.isValid(doctorId)) {
-      return new NextResponse(JSON.stringify({ message: "Invalid offerId" }), {
+      return new NextResponse(JSON.stringify({ message: "Invalid doctorId" }), {
         status: 400,
       });
     }

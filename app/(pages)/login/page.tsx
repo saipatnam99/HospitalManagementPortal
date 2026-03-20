@@ -22,11 +22,13 @@ export default function LoginForm() {
         password,
         redirect: false,
       });
-      console.log(res)
+     
+      // console.log(res)
 
       if (res?.error) {
         toast.error('Invalid Credentials');
         return;
+        
       }
 
       toast.success('Login Successful');
@@ -34,8 +36,11 @@ export default function LoginForm() {
     } catch (error) {
       console.error('Login Error:', error);
       toast.error('An error occurred while logging in.');
+     
     }
   };
+
+  
 
   useEffect(() => {
     gsap.fromTo(

@@ -8,51 +8,12 @@ export const GET = async (request: Request) => {
     const doctors = await prisma.doctor.findMany();
     return new NextResponse(JSON.stringify(doctors), { status: 200 })
   } catch (error) {
-    return new NextResponse("Error in fetching categories" + error, {
+    return new NextResponse("Error in fetching doctors" + error, {
       status: 500,
     })
 
   }
 };
-
-// export const POST = async (request: Request) => {
-//   try {
-//     const body = await request.json();
-//     //const { name } = body;
-//     const { fullName, email, phone, specialization, experience, address } = body;
-
-//     // const newDoctor = await prisma.doctor.create({
-//     //   data: {...body}
-//     // });
-
-//     const newDoctor = await prisma.doctor.create({
-//       data: {
-
-//         fullName,
-//         email,
-//         phone,
-//         specialization,
-//         experience,
-//         address
-//       },
-//     });
-
-//     return new NextResponse(
-//       JSON.stringify({ message: "Doctor is Added", doctor: newDoctor }),
-//       { status: 200 }
-//     );
-//   } catch (error) {
-//     return new NextResponse(
-//       JSON.stringify({
-//         message: "Error in addind Doctor",
-//         error,
-//       }),
-//       {
-//         status: 500,
-//       }
-//     );
-//   }
-// };
 
 export async function POST(req: Request) {
   const { email, fullName, phone, address, experience, specialization } = await req.json();
@@ -86,8 +47,5 @@ export async function POST(req: Request) {
       }
     );
   }
-  //   return NextResponse.json({ newDoctor }, { status: 201 });
-  // } catch (error) {
-  //   return NextResponse.json({ message: 'Error creating doctor' }, { status: 500 });
-  // }
+
 }

@@ -21,10 +21,7 @@ export async function POST(req: Request) {
           address, addressLine2, city, state, postalCode,
           paymentMethod, cashAmount, cardType, cardDetails, upiReceived,
         } = await req.json();
- // const { email, fullName, phone, address, experience, specialization } = await req.json();
 
-  // Hash password
-  // const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
     const newPatient = await prisma.patient.create({
