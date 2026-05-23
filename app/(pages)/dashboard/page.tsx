@@ -89,12 +89,12 @@ const sidebarItems = [
   { href: "/doctors", label: "Doctors" },
   { href: "/patients", label: "Patients" },
   { href: "/appointment", label: "Appointments" },
-  { href: "/services", label: "Services" },
+  // { href: "/services", label: "Services" },
   { href: "/billing", label: "Billing" },
-  { href: "/insurance", label: "Insurance" },
-  { href: "/policies", label: "Policies" },
-  { href: "/faq", label: "FAQ" },
-  { href: "/notifications", label: "Notifications" },
+  // { href: "/insurance", label: "Insurance" },
+  // { href: "/policies", label: "Policies" },
+  // { href: "/faq", label: "FAQ" },
+  // { href: "/notifications", label: "Notifications" },
 ];
 
 export default function Dashboard() {

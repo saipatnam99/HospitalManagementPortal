@@ -5,6 +5,8 @@ import axios from "axios";
 import Navbar from "@/components/navbar/page";
 import Sidebar from "@/components/sidebar/page";
 import PhoneInput from "react-phone-input-2";
+// Ignore missing type declarations for this side-effect CSS import
+// @ts-ignore
 import "react-phone-input-2/lib/style.css";
 
 const sidebarItems = [
@@ -12,12 +14,12 @@ const sidebarItems = [
   { href: "/doctors", label: "Doctors" },
   { href: "/patients", label: "Patients", active: true },
   { href: "/appointment", label: "Appointments" },
-  { href: "/services", label: "Services" },
+  // { href: "/services", label: "Services" },
   { href: "/billing", label: "Billing" },
-  { href: "/insurance", label: "Insurance" },
-  { href: "/policies", label: "Policies" },
-  { href: "/faq", label: "FAQ" },
-  { href: "/notifications", label: "Notifications" },
+  // { href: "/insurance", label: "Insurance" },
+  // { href: "/policies", label: "Policies" },
+  // { href: "/faq", label: "FAQ" },
+  // { href: "/notifications", label: "Notifications" },
 ];
 
 export default function AddPatientForm() {
