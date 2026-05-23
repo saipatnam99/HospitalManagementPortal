@@ -28,7 +28,7 @@ const DataTable: React.FC<DataTableProps> = ({ columns, data ,isLoading}) => {
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-white divide-y divide-gray-200 border-t">
         {isLoading ? (
           <tr>
             <td colSpan={columns.length} className="px-6 py-4 text-center text-gray-500 ">
