@@ -17,7 +17,9 @@
 import { SessionProvider } from "next-auth/react";
 import { ReactNode } from "react";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+// Ignore missing type declarations for CSS side-effect import
+// @ts-ignore
+import "react-toastify/dist/ReactToastify.min.css";
 
 type ProvidersProps = {
   children: ReactNode;

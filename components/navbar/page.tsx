@@ -1,7 +1,8 @@
+
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; // Import toastify CSS
+// import 'react-toastify/dist/ReactToastify.css';
 
 const Navbar = () => {
   const { data: session } = useSession();
