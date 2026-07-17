@@ -14,12 +14,16 @@ const sidebarItems = [
   { href: "/doctors", label: "Doctors" },
   { href: "/patients", label: "Patients", active: true },
   { href: "/appointment", label: "Appointments" },
-  // { href: "/services", label: "Services" },
+  { href: "/outpatient", label: "Outpatient" },
+  { href: "/labs", label: "Labs" },
+  { href: "/pharmacy", label: "Pharmacy" },
   { href: "/billing", label: "Billing" },
-  // { href: "/insurance", label: "Insurance" },
-  // { href: "/policies", label: "Policies" },
-  // { href: "/faq", label: "FAQ" },
-  // { href: "/notifications", label: "Notifications" },
+  { href: "/insurance", label: "Insurance" },
+  { href: "/medicines", label: "Medicines" },
+  { href: "/beds", label: "Beds" },
+  { href: "/discharge", label: "Discharge" },
+  { href: "/schedule", label: "Schedule" },
+  { href: "/admin", label: "Admin" },
 ];
 
 export default function AddPatientForm() {

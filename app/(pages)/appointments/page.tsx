@@ -5,8 +5,8 @@ import Sidebar from "@/components/sidebar/page";
 import Navbar from "@/components/navbar/page";
 import DataTable from "@/components/dataTable/page";
 import Swal from "sweetalert2";
-import { format } from "date-fns"
-import Link from "next/link";
+import { format } from "date-fns";
+import { useHospitalContext } from "@/app/providers";
 //import Loader from "@/components/loader/page";
 
 interface SidebarItem {
@@ -54,10 +54,30 @@ interface EditAppointmentFormProps {
 export default function Appointments() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] =
-    useState<Appointment | null>(null);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [appointments, setAppointments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const { addEvent, refreshSignal, bumpRefresh } = useHospitalContext();
+
+  const normalizeAppointments = (items: any[]) =>
+    items.map((appointment) => ({
+      id: appointment.id,
+      patientName: `${appointment.patient?.firstName ?? ""} ${appointment.patient?.lastName ?? ""}`.trim() || "Unknown patient",
+      doctorName: appointment.doctor?.fullName || "Unassigned",
+      department: appointment.doctor?.specialization || "General",
+      phone: appointment.patient?.phone || "",
+      preferredDate: appointment.date
+        ? new Date(appointment.date).toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })
+        : "Pending",
+      preferredTime: appointment.time || "TBD",
+      status: appointment.time ? "Scheduled" : "Pending",
+      raw: appointment,
+    }));
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -65,62 +85,120 @@ export default function Appointments() {
       try {
         const response = await axios.get("/api/appointments");
         setAppointments(response.data);
-        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching appointments:", error);
+      } finally {
         setIsLoading(false);
       }
     };
 
     fetchAppointments();
-  }, []);
+  }, [refreshSignal]);
+
+  const filteredAppointments = normalizeAppointments(appointments).filter((appointment) => {
+    const haystack = `${appointment.patientName} ${appointment.doctorName} ${appointment.department}`.toLowerCase();
+    return haystack.includes(searchTerm.toLowerCase());
+  });
 
   const columns = [
-    { header: () => "First Name", accessorKey: "firstName" },
-    { header: () => "Last Name", accessorKey: "lastName" },
-    { header: () => "Gender", accessorKey: "gender" },
-    { header: () => "Phone", accessorKey: "phone" },
-    { header: () => "Address", accessorKey: "address" },
-    { header: () => "City", accessorKey: "city" },
-    { header: () => "State", accessorKey: "state" },
-    { header: () => "Email", accessorKey: "email" },
+    { header: () => "Patient", accessorKey: "patientName" },
+    { header: () => "Doctor", accessorKey: "doctorName" },
     { header: () => "Department", accessorKey: "department" },
-    { header: () => "Procedure", accessorKey: "procedure" },
-    { header: () => "Preferred Date", accessorKey: "preferredDate" },
-    { header: () => "Preferred Time", accessorKey: "preferredTime" },
+    { header: () => "Date", accessorKey: "preferredDate" },
+    { header: () => "Time", accessorKey: "preferredTime" },
+    {
+      header: () => "Status",
+      accessorKey: "status",
+      cell: ({ row }: { row: any }) => (
+        <span
+          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
+            row.status === "Scheduled"
+              ? "bg-emerald-100 text-emerald-700"
+              : "bg-amber-100 text-amber-700"
+          }`}
+        >
+          {row.status}
+        </span>
+      ),
+    },
     {
       header: () => "Actions",
       accessorKey: "actions",
       cell: ({ row }: { row: any }) => (
-        <>
+        <div className="flex flex-wrap gap-2">
           <button
-            className="mb-2 mr-2 px-6 py-2 bg-yellow-500 text-white rounded"
+            className="rounded-lg bg-yellow-500 px-3 py-2 text-sm font-semibold text-white"
             onClick={() => handleEdit(row.id)}
           >
             Edit
           </button>
           <button
-            className="px-4 py-2 bg-red-500 text-white rounded"
+            className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white"
+            onClick={() => handleSendReminder(row)}
+          >
+            Reminder
+          </button>
+          <button
+            className="rounded-lg bg-red-500 px-3 py-2 text-sm font-semibold text-white"
             onClick={() => handleDelete(row.id)}
           >
             Delete
           </button>
-        </>
+        </div>
       ),
     },
   ];
 
   const handleEdit = (appointmentId: string) => {
-    const appointmentToEdit = appointments.find(
-      (appointment) => appointment.id === appointmentId
-    );
-    if(appointmentToEdit){
-      appointmentToEdit.preferredDate = format((appointmentToEdit.preferredDate as string), "yyyy-MM-dd'T'HH:mm");
-      appointmentToEdit.appliedBefore = String((appointmentToEdit.appliedBefore ))
-
+    const appointmentToEdit = appointments.find((appointment) => appointment.id === appointmentId);
+    if (appointmentToEdit) {
+      const patient = appointmentToEdit.patient || {};
+      const doctor = appointmentToEdit.doctor || {};
+      const mappedAppointment: Appointment = {
+        id: appointmentToEdit.id,
+        firstName: patient.firstName || "",
+        lastName: patient.lastName || "",
+        gender: "",
+        phone: patient.phone || "",
+        address: "",
+        addressLine2: "",
+        city: "",
+        state: "",
+        postalCode: "",
+        email: patient.email || "",
+        appliedBefore: "no",
+        department: doctor.specialization || "",
+        procedure: "",
+        preferredDate: appointmentToEdit.date ? format(new Date(appointmentToEdit.date), "yyyy-MM-dd'T'HH:mm") : "",
+        preferredTime: appointmentToEdit.time || "",
+      };
+      setSelectedAppointment(mappedAppointment);
+      setShowEditModal(true);
     }
-    setSelectedAppointment(appointmentToEdit || null);
-    setShowEditModal(true);
+  };
+
+  const handleSendReminder = async (appointment: any) => {
+    try {
+      const response = await fetch("/api/sendSms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phoneNumbers: appointment.phone ? [appointment.phone] : [],
+          message: `Hello ${appointment.patientName}, this is a reminder for your upcoming appointment at ${appointment.preferredTime || "the scheduled time"}. Please arrive 15 minutes early.`,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || "Unable to send reminder");
+      }
+
+      addEvent({ id: `appointment-${Date.now()}`, type: "reminder", message: `Reminder queued for ${appointment.patientName}`, timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) });
+      bumpRefresh();
+      Swal.fire({ title: "Reminder sent", text: data.message || "The reminder was queued successfully.", icon: "success" });
+    } catch (error) {
+      Swal.fire({ title: "Reminder failed", text: error instanceof Error ? error.message : "Please try again later.", icon: "error" });
+    }
   };
 
   const handleDelete = async (appointmentId: string) => {
@@ -991,39 +1069,68 @@ export default function Appointments() {
     //     <EditAppointmentForm appointment={currentAppointment} />
     //   )} */}
     // </div>
-    <div className="flex">
-      
-      
-      <div className=" min-h-screen flex-1 flex flex-col">
+    <div className="min-h-screen bg-slate-50">
       <Navbar />
-      <div className="bg-gray-100 flex flex-row">
-      <Sidebar sidebarItems={sidebarItems} />
-      
-      
-        <div className="p-4">
-          <div className="flex justify-between mb-4">
-            <h1 className="text-2xl font-semibold">Doctors</h1>
-            <button
-              className="px-4 py-2 bg-green-500 text-white rounded"
-              onClick={() => setShowAddModal(true)}
-            >
-             <Link href={''}>
-             Add Appointment</Link>
-            </button>
+      <div className="flex">
+        <Sidebar sidebarItems={sidebarItems} />
+
+        <div className="flex-1 p-4 md:p-6 lg:p-8">
+          <div className="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-blue-800 p-6 text-white shadow-lg">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-blue-200">
+                  Appointment management
+                </p>
+                <h1 className="mt-2 text-2xl font-semibold">Schedule and track visits</h1>
+                <p className="mt-2 max-w-2xl text-sm text-slate-300">
+                  Keep consultations organized with a clear, searchable care schedule.
+                </p>
+              </div>
+              <button
+                className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+                onClick={() => setShowAddModal(true)}
+              >
+                Add appointment
+              </button>
+            </div>
           </div>
 
-          <DataTable
-            data={appointments}
-            columns={columns}
-            isLoading={undefined}
-          />
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <div className="card-surface p-4">
+              <p className="text-sm text-slate-500">Scheduled visits</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-900">{appointments.length}</p>
+            </div>
+            <div className="card-surface p-4">
+              <p className="text-sm text-slate-500">Search care records</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-900">Fast lookup</p>
+            </div>
+            <div className="card-surface p-4">
+              <p className="text-sm text-slate-500">Hospital readiness</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-900">Always on</p>
+            </div>
+          </div>
+
+          <div className="mt-6 card-surface p-4">
+            <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">Appointment list</h2>
+                <p className="text-sm text-slate-500">Search by patient, doctor, or department.</p>
+              </div>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Search appointments"
+                className="w-full rounded-xl border border-slate-200 px-4 py-2 text-sm outline-none ring-0 md:w-72"
+              />
+            </div>
+
+            <DataTable data={filteredAppointments} columns={columns} isLoading={isLoading} />
+          </div>
         </div>
       </div>
       {showAddModal && <AddAppointmentForm />}
-      {showEditModal && (
-        <EditAppointmentForm appointment={selectedAppointment} />
-      )}
-    </div>
+      {showEditModal && <EditAppointmentForm appointment={selectedAppointment} />}
     </div>
   );
 }
